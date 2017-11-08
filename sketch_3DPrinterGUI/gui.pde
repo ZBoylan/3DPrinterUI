@@ -58,6 +58,10 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:connectBtn:421460:
 
+public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
+  println("button1 - GButton >> GEvent." + event + " @ " + millis());
+} //_CODE_:chooseFileBtn:320943:
+
 synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
   appc.background(230);
 } //_CODE_:inputWindow:608766:
@@ -91,13 +95,13 @@ public void createGUI(){
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
   surface.setTitle("Sketch Window");
-  startSliceBtn = new GButton(this, 530, 70, 80, 30);
+  startSliceBtn = new GButton(this, 530, 30, 80, 30);
   startSliceBtn.setText("Start");
   startSliceBtn.addEventHandler(this, "startSliceBtn_click");
-  pauseSliceBtn = new GButton(this, 620, 70, 80, 30);
+  pauseSliceBtn = new GButton(this, 620, 30, 80, 30);
   pauseSliceBtn.setText("Pause");
   pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
-  cancelPrintBtn = new GButton(this, 710, 70, 80, 30);
+  cancelPrintBtn = new GButton(this, 710, 30, 80, 30);
   cancelPrintBtn.setText("Cancel");
   cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
   infillSlider = new GSlider(this, 630, 140, 160, 50, 10.0);
@@ -153,6 +157,9 @@ public void createGUI(){
   statusLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   statusLabel.setText("Status");
   statusLabel.setOpaque(false);
+  chooseFileBtn = new GButton(this, 710, 70, 80, 30);
+  chooseFileBtn.setText("Choose File");
+  chooseFileBtn.addEventHandler(this, "chooseFileBtn_click");
   inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
@@ -192,6 +199,7 @@ GButton warmUpBtn;
 GButton recenterHeadBtn; 
 GButton connectBtn; 
 GLabel statusLabel; 
+GButton chooseFileBtn; 
 GWindow inputWindow;
 GTextField fileTextBox; 
 GButton searchFileBtn; 
