@@ -237,7 +237,7 @@ GButton chooseFileBtn;
 GButton rightArrowbtn; 
 GButton upArrowbtn; 
 GButton leftArrowbtn; 
-GButton downArrowbtn; 
+GButton downArrowbtn;
 GWindow inputWindow;
 GTextField fileTextBox; 
 GButton searchFileBtn; 
