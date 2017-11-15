@@ -63,7 +63,6 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
   //Show the input Window
   inputWindow.setVisible(true);
 } //_CODE_:chooseFileBtn:320943:
-
 public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
   println("rightArrowbtn - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:rightArrowbtn:338278:
@@ -233,7 +232,7 @@ GButton warmUpBtn;
 GButton recenterHeadBtn; 
 GButton connectBtn; 
 GLabel statusLabel; 
-GButton chooseFileBtn; 
+GButton chooseFileBtn;
 GButton rightArrowbtn; 
 GButton upArrowbtn; 
 GButton leftArrowbtn; 
