@@ -58,6 +58,22 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:connectBtn:421460:
 
+public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
+  println("rightArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+} //_CODE_:rightArrowbtn:338278:
+
+public void upArrowbtn_click1(GButton source, GEvent event) { //_CODE_:upArrowbtn:481853:
+  println("upArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+} //_CODE_:upArrowbtn:481853:
+
+public void leftArrowbtn_click1(GButton source, GEvent event) { //_CODE_:leftArrowbtn:840976:
+  println("leftArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+} //_CODE_:leftArrowbtn:840976:
+
+public void downArrowbtn_click1(GButton source, GEvent event) { //_CODE_:downArrowbtn:888588:
+  println("downArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+} //_CODE_:downArrowbtn:888588:
+
 synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
   appc.background(230);
 } //_CODE_:inputWindow:608766:
@@ -153,6 +169,18 @@ public void createGUI(){
   statusLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   statusLabel.setText("Status");
   statusLabel.setOpaque(false);
+  rightArrowbtn = new GButton(this, 190, 360, 42, 36);
+  rightArrowbtn.setIcon("ArrowRight.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
+  rightArrowbtn.addEventHandler(this, "rightArrowbtn_click1");
+  upArrowbtn = new GButton(this, 140, 330, 40, 41);
+  upArrowbtn.setIcon("ArrowUp.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
+  upArrowbtn.addEventHandler(this, "upArrowbtn_click1");
+  leftArrowbtn = new GButton(this, 90, 360, 44, 36);
+  leftArrowbtn.setIcon("ArrowLeft.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
+  leftArrowbtn.addEventHandler(this, "leftArrowbtn_click1");
+  downArrowbtn = new GButton(this, 140, 380, 40, 40);
+  downArrowbtn.setIcon("ArrowDown.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
+  downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
   inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
@@ -192,6 +220,10 @@ GButton warmUpBtn;
 GButton recenterHeadBtn; 
 GButton connectBtn; 
 GLabel statusLabel; 
+GButton rightArrowbtn; 
+GButton upArrowbtn; 
+GButton leftArrowbtn; 
+GButton downArrowbtn; 
 GWindow inputWindow;
 GTextField fileTextBox; 
 GButton searchFileBtn; 
