@@ -20,6 +20,7 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
 
 public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
   println("pauseSliceBtn - GButton >> GEvent." + event + " @ " + millis());
+  
 } //_CODE_:pauseSliceBtn:624877:
 
 public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
@@ -27,23 +28,35 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 } //_CODE_:cancelPrintBtn:781425:
 
 public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
-  println("slider1 - GSlider >> GEvent." + event + " @ " + millis());
+  // var name = infillSlider
+  // Team wants value form 0.0 - 1.0 = divide by 100 if slider range is 0.0 - 100.0
+  //infill = infillSlider.getValueF();   // round2 function will set number of decimals you want for infill
+  infill = round2(infillSlider.getValueF(), 2);
+  println("infill = " + infill);
 } //_CODE_:infillSlider:696453:
 
 public void qualityLowRad_clicked(GOption source, GEvent event) { //_CODE_:qualityLowRad:596469:
-  println("qualityLowRad - GOption >> GEvent." + event + " @ " + millis());
+  quality = 0;
+  println("quality set to low = " + quality);
 } //_CODE_:qualityLowRad:596469:
 
 public void qualityMedRad_clicked(GOption source, GEvent event) { //_CODE_:qualityMedRad:556993:
-  println("qualityMedRad - GOption >> GEvent." + event + " @ " + millis());
+  quality = 1;
+  println("quality set to medium = " + quality);
 } //_CODE_:qualityMedRad:556993:
 
 public void qualityHighRad_clicked(GOption source, GEvent event) { //_CODE_:qualityHighRad:770558:
-  println("qualityHighRad - GOption >> GEvent." + event + " @ " + millis());
+  quality = 2;
+  println("quality set to high = " + quality);
 } //_CODE_:qualityHighRad:770558:
 
 public void printWhenReadyBox_clicked(GCheckbox source, GEvent event) { //_CODE_:printWhenReadyBox:392431:
-  println("printWhenReadyBox - GCheckbox >> GEvent." + event + " @ " + millis());
+  if (printWhenReadyBox.isSelected() == false)
+      printWhenReady = false;
+  else
+      printWhenReady = true;
+  
+  println("printWhenReady is " + printWhenReady);
 } //_CODE_:printWhenReadyBox:392431:
 
 public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:690847:
@@ -63,22 +76,6 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
   //Show the input Window
   inputWindow.setVisible(true);
 } //_CODE_:chooseFileBtn:320943:
-
-public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
-  println("rightArrowbtn - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:rightArrowbtn:338278:
-
-public void upArrowbtn_click1(GButton source, GEvent event) { //_CODE_:upArrowbtn:481853:
-  println("upArrowbtn - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:upArrowbtn:481853:
-
-public void leftArrowbtn_click1(GButton source, GEvent event) { //_CODE_:leftArrowbtn:840976:
-  println("leftArrowbtn - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:leftArrowbtn:840976:
-
-public void downArrowbtn_click1(GButton source, GEvent event) { //_CODE_:downArrowbtn:888588:
-  println("downArrowbtn - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:downArrowbtn:888588:
 
 synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
   appc.background(230);
@@ -127,9 +124,9 @@ public void createGUI(){
   infillSlider = new GSlider(this, 630, 140, 160, 50, 10.0);
   infillSlider.setShowValue(true);
   infillSlider.setShowLimits(true);
-  infillSlider.setLimits(1, 0, 100);
+  infillSlider.setLimits(0.5, 0.0, 1.0);
   infillSlider.setNbrTicks(100);
-  infillSlider.setNumberFormat(G4P.INTEGER, 0);
+  infillSlider.setNumberFormat(G4P.DECIMAL, 0);
   infillSlider.setOpaque(false);
   infillSlider.addEventHandler(this, "qualitySlider_change");
   infillLabel = new GLabel(this, 669, 120, 80, 20);
@@ -160,7 +157,7 @@ public void createGUI(){
   qualityLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   qualityLabel.setText("Quality");
   qualityLabel.setOpaque(false);
-  printWhenReadyBox = new GCheckbox(this, 530, 150, 100, 30);
+  printWhenReadyBox = new GCheckbox(this, 530, 149, 100, 30);
   printWhenReadyBox.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   printWhenReadyBox.setText("Print When Ready");
   printWhenReadyBox.setOpaque(false);
@@ -181,18 +178,6 @@ public void createGUI(){
   chooseFileBtn = new GButton(this, 710, 70, 80, 30);
   chooseFileBtn.setText("Choose File");
   chooseFileBtn.addEventHandler(this, "chooseFileBtn_click");
-  rightArrowbtn = new GButton(this, 190, 360, 42, 36);
-  rightArrowbtn.setIcon("ArrowRight.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
-  rightArrowbtn.addEventHandler(this, "rightArrowbtn_click1");
-  upArrowbtn = new GButton(this, 140, 330, 40, 41);
-  upArrowbtn.setIcon("ArrowUp.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
-  upArrowbtn.addEventHandler(this, "upArrowbtn_click1");
-  leftArrowbtn = new GButton(this, 90, 360, 44, 36);
-  leftArrowbtn.setIcon("ArrowLeft.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
-  leftArrowbtn.addEventHandler(this, "leftArrowbtn_click1");
-  downArrowbtn = new GButton(this, 140, 380, 40, 40);
-  downArrowbtn.setIcon("ArrowDown.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
-  downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
   inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
@@ -213,7 +198,6 @@ public void createGUI(){
   confirmBtn.setText("Confirm");
   confirmBtn.addEventHandler(this, "confirmBtn_click");
   inputWindow.loop();
-  inputWindow.setVisible(false);
 }
 
 // Variable declarations 
@@ -234,10 +218,6 @@ GButton recenterHeadBtn;
 GButton connectBtn; 
 GLabel statusLabel; 
 GButton chooseFileBtn; 
-GButton rightArrowbtn; 
-GButton upArrowbtn; 
-GButton leftArrowbtn; 
-GButton downArrowbtn;
 GWindow inputWindow;
 GTextField fileTextBox; 
 GButton searchFileBtn; 
