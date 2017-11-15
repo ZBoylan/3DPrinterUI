@@ -23,7 +23,7 @@ public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSl
 } //_CODE_:pauseSliceBtn:624877:
 
 public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
-  println("cacnelPrintBtn - GButton >> GEvent." + event + " @ " + millis());
+  println("cancelPrintBtn - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:cancelPrintBtn:781425:
 
 public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
@@ -58,6 +58,13 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:connectBtn:421460:
 
+<<<<<<< HEAD
+public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
+  println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  //Show the input Window
+  inputWindow.setVisible(true);
+} //_CODE_:chooseFileBtn:320943:
+=======
 public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
   println("rightArrowbtn - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:rightArrowbtn:338278:
@@ -73,6 +80,7 @@ public void leftArrowbtn_click1(GButton source, GEvent event) { //_CODE_:leftArr
 public void downArrowbtn_click1(GButton source, GEvent event) { //_CODE_:downArrowbtn:888588:
   println("downArrowbtn - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:downArrowbtn:888588:
+>>>>>>> 29a4da8760ae04260ccf6dd75fd61e266406a19b
 
 synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
   appc.background(230);
@@ -90,8 +98,10 @@ public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcode
   println("textarea1 - GTextArea >> GEvent." + event + " @ " + millis());
 } //_CODE_:gcodeTextBox:726640:
 
-public void cancelInputBtn_click1(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
+public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  inputWindow.setVisible(false);
+  
 } //_CODE_:cancelInputBtn:629030:
 
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
@@ -107,23 +117,24 @@ public void createGUI(){
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
   surface.setTitle("Sketch Window");
-  startSliceBtn = new GButton(this, 530, 70, 80, 30);
+  startSliceBtn = new GButton(this, 530, 30, 80, 30);
   startSliceBtn.setText("Start");
   startSliceBtn.addEventHandler(this, "startSliceBtn_click");
-  pauseSliceBtn = new GButton(this, 620, 70, 80, 30);
+  pauseSliceBtn = new GButton(this, 620, 30, 80, 30);
   pauseSliceBtn.setText("Pause");
   pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
-  cancelPrintBtn = new GButton(this, 710, 70, 80, 30);
+  cancelPrintBtn = new GButton(this, 710, 30, 80, 30);
   cancelPrintBtn.setText("Cancel");
   cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
   infillSlider = new GSlider(this, 630, 140, 160, 50, 10.0);
+  infillSlider.setShowValue(true);
   infillSlider.setShowLimits(true);
   infillSlider.setLimits(1, 0, 100);
   infillSlider.setNbrTicks(100);
   infillSlider.setNumberFormat(G4P.INTEGER, 0);
   infillSlider.setOpaque(false);
   infillSlider.addEventHandler(this, "qualitySlider_change");
-  infillLabel = new GLabel(this, 630, 140, 80, 20);
+  infillLabel = new GLabel(this, 669, 120, 80, 20);
   infillLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   infillLabel.setText("Infill %");
   infillLabel.setOpaque(false);
@@ -169,6 +180,11 @@ public void createGUI(){
   statusLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   statusLabel.setText("Status");
   statusLabel.setOpaque(false);
+<<<<<<< HEAD
+  chooseFileBtn = new GButton(this, 710, 70, 80, 30);
+  chooseFileBtn.setText("Choose File");
+  chooseFileBtn.addEventHandler(this, "chooseFileBtn_click");
+=======
   rightArrowbtn = new GButton(this, 190, 360, 42, 36);
   rightArrowbtn.setIcon("ArrowRight.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   rightArrowbtn.addEventHandler(this, "rightArrowbtn_click1");
@@ -181,6 +197,7 @@ public void createGUI(){
   downArrowbtn = new GButton(this, 140, 380, 40, 40);
   downArrowbtn.setIcon("ArrowDown.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
+>>>>>>> 29a4da8760ae04260ccf6dd75fd61e266406a19b
   inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
@@ -196,11 +213,12 @@ public void createGUI(){
   gcodeTextBox.addEventHandler(this, "gcodeTextBox_change");
   cancelInputBtn = new GButton(inputWindow, 190, 310, 80, 30);
   cancelInputBtn.setText("Cancel");
-  cancelInputBtn.addEventHandler(this, "cancelInputBtn_click1");
+  cancelInputBtn.addEventHandler(this, "cancelInputBtn_click");
   confirmBtn = new GButton(inputWindow, 30, 310, 80, 30);
   confirmBtn.setText("Confirm");
   confirmBtn.addEventHandler(this, "confirmBtn_click");
   inputWindow.loop();
+  inputWindow.setVisible(false);
 }
 
 // Variable declarations 
@@ -220,10 +238,14 @@ GButton warmUpBtn;
 GButton recenterHeadBtn; 
 GButton connectBtn; 
 GLabel statusLabel; 
+<<<<<<< HEAD
+GButton chooseFileBtn; 
+=======
 GButton rightArrowbtn; 
 GButton upArrowbtn; 
 GButton leftArrowbtn; 
 GButton downArrowbtn; 
+>>>>>>> 29a4da8760ae04260ccf6dd75fd61e266406a19b
 GWindow inputWindow;
 GTextField fileTextBox; 
 GButton searchFileBtn; 
