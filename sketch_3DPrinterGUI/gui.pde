@@ -62,7 +62,6 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   //Show the input Window
   inputWindow.setVisible(true);
-
 } //_CODE_:chooseFileBtn:320943:
 
 synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
@@ -84,6 +83,7 @@ public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcode
 public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   inputWindow.setVisible(false);
+  
 } //_CODE_:cancelInputBtn:629030:
 
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
@@ -185,6 +185,7 @@ public void createGUI(){
   confirmBtn.setText("Confirm");
   confirmBtn.addEventHandler(this, "confirmBtn_click");
   inputWindow.loop();
+  inputWindow.setVisible(false);
 }
 
 // Variable declarations 
