@@ -131,7 +131,7 @@ public void createGUI(){
   infillSlider.addEventHandler(this, "qualitySlider_change");
   infillLabel = new GLabel(this, 669, 120, 80, 20);
   infillLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-  infillLabel.setText("Infill %");
+  infillLabel.setText("Infill");
   infillLabel.setOpaque(false);
   qualityGroup = new GToggleGroup();
   qualityLowRad = new GOption(this, 630, 220, 120, 20);
