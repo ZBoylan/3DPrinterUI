@@ -23,6 +23,7 @@ public void settings(){
     size(1400,700,JAVA2D);
 }
 
+/*
 public void setup(){
   createGUI();
 }
@@ -30,6 +31,7 @@ public void setup(){
 public void draw(){
   background(255);  
 }
+*/
 
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
