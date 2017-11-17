@@ -46,23 +46,35 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 } //_CODE_:cancelPrintBtn:781425:
 
 public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
-  println("slider1 - GSlider >> GEvent." + event + " @ " + millis());
+  // var name = infillSlider
+  // Team wants value form 0.0 - 1.0 = divide by 100 if slider range is 0.0 - 100.0
+  //infill = infillSlider.getValueF();   // round2 function will set number of decimals you want for infill
+  infill = round2(infillSlider.getValueF(), 2);
+  println("infill = " + infill);
 } //_CODE_:infillSlider:696453:
 
 public void qualityLowRad_clicked(GOption source, GEvent event) { //_CODE_:qualityLowRad:596469:
-  println("qualityLowRad - GOption >> GEvent." + event + " @ " + millis());
+  quality = 0;
+  println("quality set to low = " + quality);
 } //_CODE_:qualityLowRad:596469:
 
 public void qualityMedRad_clicked(GOption source, GEvent event) { //_CODE_:qualityMedRad:556993:
-  println("qualityMedRad - GOption >> GEvent." + event + " @ " + millis());
+  quality = 1;
+  println("quality set to medium = " + quality);
 } //_CODE_:qualityMedRad:556993:
 
 public void qualityHighRad_clicked(GOption source, GEvent event) { //_CODE_:qualityHighRad:770558:
-  println("qualityHighRad - GOption >> GEvent." + event + " @ " + millis());
+  quality = 2;
+  println("quality set to high = " + quality);
 } //_CODE_:qualityHighRad:770558:
 
 public void printWhenReadyBox_clicked(GCheckbox source, GEvent event) { //_CODE_:printWhenReadyBox:392431:
-  println("printWhenReadyBox - GCheckbox >> GEvent." + event + " @ " + millis());
+  if (printWhenReadyBox.isSelected() == false)
+      printWhenReady = false;
+  else
+      printWhenReady = true;
+  
+  println("printWhenReady is " + printWhenReady);
 } //_CODE_:printWhenReadyBox:392431:
 
 public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:690847:
@@ -140,9 +152,9 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
 
 //Layer Slider
 public void layerSlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
-  println("slider1 - GSlider >> GEvent." + event + " @ " + millis());
-  layerHeight = layerSlider.getValueF();
+  layerHeight = round2(layerSlider.getValueF(), 2);
   layerValue.setText(str (layerHeight));
+  println("layerHeight = " + layerHeight);
 } 
 
 // Create all the GUI controls. 
@@ -164,9 +176,9 @@ public void createGUI(){
   infillSlider = new GSlider(this, 630, 140, 160, 50, 10.0);
   infillSlider.setShowValue(true);
   infillSlider.setShowLimits(true);
-  infillSlider.setLimits(1, 0, 100);
+  infillSlider.setLimits(0.5, 0.0, 1.0);
   infillSlider.setNbrTicks(100);
-  infillSlider.setNumberFormat(G4P.INTEGER, 0);
+  infillSlider.setNumberFormat(G4P.DECIMAL, 0);
   infillSlider.setOpaque(false);
   infillSlider.addEventHandler(this, "qualitySlider_change");
   infillLabel = new GLabel(this, 669, 120, 80, 20);
