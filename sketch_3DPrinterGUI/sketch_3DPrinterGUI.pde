@@ -20,6 +20,7 @@ float layerSize;       //range range 1-2
 //getValueI() - returns the value as an integer (effectively a rounded float)
 //getValueF() - returns the value as a float
 
+/*
 public void setup(){
   size(900, 500, JAVA2D);
   createGUI();
@@ -33,6 +34,7 @@ public void draw(){
   background(230);
   
 }
+*/
 
 // Use this method to add additional statements
 // to customise the GUI controls
