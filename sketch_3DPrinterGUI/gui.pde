@@ -19,19 +19,37 @@ import g4p_controls.*;
 import java.awt.*;
 import java.io.File;
 
+import toxi.geom.*;
+import toxi.geom.mesh.*;
+import toxi.processing.*;
+
+TriangleMesh mesh;
+ToxiclibsSupport gfx;
+
+boolean confirmClicked = false;
+
+
 public void settings(){
-    size(1400,700,JAVA2D);
+  size(1400,700,P3D);
 }
 
-/*
 public void setup(){
   createGUI();
 }
 
 public void draw(){
   background(255);  
+  if (confirmClicked){
+    lights();
+    translate(200, 180, 0);
+    rotateX(mouseY*0.01);
+    rotateY(mouseX*0.01);
+    gfx.origin(new Vec3D(),200);
+    noStroke();
+    gfx.mesh(mesh,false,10);
+  }
 }
-*/
+
 
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
@@ -46,35 +64,23 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 } //_CODE_:cancelPrintBtn:781425:
 
 public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
-  // var name = infillSlider
-  // Team wants value form 0.0 - 1.0 = divide by 100 if slider range is 0.0 - 100.0
-  //infill = infillSlider.getValueF();   // round2 function will set number of decimals you want for infill
-  infill = round2(infillSlider.getValueF(), 2);
-  println("infill = " + infill);
+  println("slider1 - GSlider >> GEvent." + event + " @ " + millis());
 } //_CODE_:infillSlider:696453:
 
 public void qualityLowRad_clicked(GOption source, GEvent event) { //_CODE_:qualityLowRad:596469:
-  quality = 0;
-  println("quality set to low = " + quality);
+  println("qualityLowRad - GOption >> GEvent." + event + " @ " + millis());
 } //_CODE_:qualityLowRad:596469:
 
 public void qualityMedRad_clicked(GOption source, GEvent event) { //_CODE_:qualityMedRad:556993:
-  quality = 1;
-  println("quality set to medium = " + quality);
+  println("qualityMedRad - GOption >> GEvent." + event + " @ " + millis());
 } //_CODE_:qualityMedRad:556993:
 
 public void qualityHighRad_clicked(GOption source, GEvent event) { //_CODE_:qualityHighRad:770558:
-  quality = 2;
-  println("quality set to high = " + quality);
+  println("qualityHighRad - GOption >> GEvent." + event + " @ " + millis());
 } //_CODE_:qualityHighRad:770558:
 
 public void printWhenReadyBox_clicked(GCheckbox source, GEvent event) { //_CODE_:printWhenReadyBox:392431:
-  if (printWhenReadyBox.isSelected() == false)
-      printWhenReady = false;
-  else
-      printWhenReady = true;
-  
-  println("printWhenReady is " + printWhenReady);
+  println("printWhenReadyBox - GCheckbox >> GEvent." + event + " @ " + millis());
 } //_CODE_:printWhenReadyBox:392431:
 
 public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:690847:
@@ -130,6 +136,8 @@ public void searchFileBtn_click(GButton source, GEvent event) { //_CODE_:searchF
 
 public void fileSelected(File selection) {
   STLFile = selection.getAbsolutePath();
+  mesh=(TriangleMesh)new STLReader().loadBinary(sketchPath(STLFile),STLReader.TRIANGLEMESH);
+  gfx=new ToxiclibsSupport(this);
   fileTextBox.setText(STLFile);
 }
 
@@ -140,21 +148,22 @@ public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcode
 public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   inputWindow.setVisible(false); 
-} //_CODE_:cancelInputBtn:629030:
+} //_CODE_:cancelInputBtn:6 29030:
 
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
   println("confirmBtn - GButton >> GEvent." + event + " @ " + millis());
   if (fileTextBox.getText() == STLFile) {
     currentFile.setText(STLFile);
     inputWindow.setVisible(false);
+    confirmClicked = true;
   }
 } //_CODE_:confirmBtn:275116:
 
 //Layer Slider
 public void layerSlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
-  layerHeight = round2(layerSlider.getValueF(), 2);
+  println("slider1 - GSlider >> GEvent." + event + " @ " + millis());
+  layerHeight = layerSlider.getValueF();
   layerValue.setText(str (layerHeight));
-  println("layerHeight = " + layerHeight);
 } 
 
 // Create all the GUI controls. 
@@ -323,6 +332,7 @@ GButton searchFileBtn;
 GTextArea gcodeTextBox; 
 GButton cancelInputBtn; 
 GButton confirmBtn; 
+
 String STLFile;
 float layerHeight;
 GLabel currentFile;
