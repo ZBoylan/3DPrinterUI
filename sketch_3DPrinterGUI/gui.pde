@@ -98,6 +98,52 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
   inputWindow.setVisible(true);
 } //_CODE_:chooseFileBtn:320943:
 
+public void nozzleSlider_change(GSlider source, GEvent event) { //_CODE_:nozzleSlider:915112:
+  nozzleDiameter = round2(nozzleSlider.getValueF(), 2);
+  println("Nozzle diameter = " + nozzleDiameter);
+} //_CODE_:nozzleSlider:915112:
+
+public void sliderLayerSize_change(GSlider source, GEvent event) { //_CODE_:layerSizeSlider:493757:
+  layerSize = round2(layerSizeSlider.getValueF(), 2);
+  println("Layer size = " + layerSize);
+} //_CODE_:layerSizeSlider:493757:
+
+public void xAreaTextfield_change(GTextField source, GEvent event) { //_CODE_:xTextBox:544724:
+  xArea = Integer.parseInt(xTextBox.getText());
+  
+  // This is throwing a null pointer exception and crashing atm
+  if (xArea < 1)
+    xTextBox.setText("1");
+  if (xArea > 200)
+    xTextBox.setText("200");
+  
+  println("X Area = " + xArea);
+} //_CODE_:xTextBox:544724:
+
+public void yAreaTextfield_change1(GTextField source, GEvent event) { //_CODE_:yTextBox:577150:
+  yArea = Integer.parseInt(yTextBox.getText());
+  
+  // This is throwing a null pointer exception and crashing atm
+  if (yArea < 1)
+    yTextBox.setText("1");
+  if (yArea > 200)
+    yTextBox.setText("200");
+    
+  println("Y Area = " + yArea);
+} //_CODE_:yTextBox:577150:
+
+public void zAreaTextfield_change1(GTextField source, GEvent event) { //_CODE_:zTextBox:384490:
+  zArea = Integer.parseInt(zTextBox.getText());
+  
+  // This is throwing a null pointer exception and crashing atm
+  if (zArea < 1)
+    zTextBox.setText("1");
+  if (zArea > 200)
+    zTextBox.setText("200");
+  
+  println("Z Area = " + zArea);
+} //_CODE_:zTextBox:384490:
+
 public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
   println("rightArrowbtn - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:rightArrowbtn:338278:
@@ -252,6 +298,49 @@ public void createGUI(){
   downArrowbtn = new GButton(this, 140, 380, 40, 40);
   downArrowbtn.setIcon("ArrowDown.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
+  
+  nozzleSlider = new GSlider(this, 630, 280, 160, 40, 10.0);
+  nozzleSlider.setShowValue(true);
+  nozzleSlider.setLimits(0.5, 0.0, 1.0);
+  nozzleSlider.setNumberFormat(G4P.DECIMAL, 2);
+  nozzleSlider.setOpaque(false);
+  nozzleSlider.addEventHandler(this, "nozzleSlider_change");
+  nozzleLabel = new GLabel(this, 790, 290, 110, 20);
+  nozzleLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  nozzleLabel.setText("Nozzle Diameter");
+  nozzleLabel.setOpaque(false);
+  layerSizeSlider = new GSlider(this, 630, 320, 160, 40, 10.0);
+  layerSizeSlider.setShowValue(true);
+  layerSizeSlider.setLimits(1.5, 1.0, 2.0);
+  layerSizeSlider.setNumberFormat(G4P.DECIMAL, 2);
+  layerSizeSlider.setOpaque(false);
+  layerSizeSlider.addEventHandler(this, "sliderLayerSize_change");
+  layerSizeLabel = new GLabel(this, 790, 330, 110, 20);
+  layerSizeLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  layerSizeLabel.setText("Layer Size");
+  layerSizeLabel.setOpaque(false);
+  xTextBox = new GTextField(this, 550, 200, 70, 30, G4P.SCROLLBARS_NONE);
+  xTextBox.setOpaque(true);
+  xTextBox.addEventHandler(this, "xAreaTextfield_change");
+  yTextBox = new GTextField(this, 550, 240, 70, 30, G4P.SCROLLBARS_NONE);
+  yTextBox.setOpaque(true);
+  yTextBox.addEventHandler(this, "yAreaTextfield_change1");
+  zTextBox = new GTextField(this, 550, 280, 70, 30, G4P.SCROLLBARS_NONE);
+  zTextBox.setOpaque(true);
+  zTextBox.addEventHandler(this, "zAreaTextfield_change1");
+  xLabel = new GLabel(this, 470, 200, 80, 20);
+  xLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  xLabel.setText("X Area");
+  xLabel.setOpaque(false);
+  yLabel = new GLabel(this, 470, 240, 80, 20);
+  yLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  yLabel.setText("Y Area");
+  yLabel.setOpaque(false);
+  zLabel = new GLabel(this, 470, 280, 80, 20);
+  zLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  zLabel.setText("Z Area");
+  zLabel.setOpaque(false);
+  
   inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
@@ -331,3 +420,14 @@ GLabel currentFile;
 GSlider layerSlider;
 GLabel layerLabel;
 GLabel layerValue;
+
+GSlider nozzleSlider; 
+GLabel nozzleLabel; 
+GSlider layerSizeSlider; 
+GLabel layerSizeLabel; 
+GTextField xTextBox; 
+GTextField yTextBox; 
+GTextField zTextBox; 
+GLabel xLabel; 
+GLabel yLabel; 
+GLabel zLabel;
