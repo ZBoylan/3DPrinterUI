@@ -31,7 +31,7 @@ public void settings(){
 
 public void setup(){
   createGUI();
-  inputWindow.setVisible(true);
+  inputWindow.setVisible(false);
   try {
      devControl = new DeviceController(this, "/dev/ttyUSB0", 115200, true);
   }
