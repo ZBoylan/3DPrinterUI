@@ -19,30 +19,59 @@ import g4p_controls.*;
 import java.awt.*;
 import java.io.File;
 
+import processing.serial.*;
+import java.util.Arrays;
+
+DeviceController devControl;
+ArrayList<String> gcode;
+
 public void settings(){
     size(1400,700,JAVA2D);
 }
 
-/*
 public void setup(){
   createGUI();
+  inputWindow.setVisible(true);
+  try {
+     devControl = new DeviceController(this, "/dev/ttyUSB0", 115200, true);
+  }
+  catch(RuntimeException e) {
+     e.printStackTrace();
+     println("Failed to open serial port, aborting");
+     return;
+  }
+  
+  gcode = new ArrayList<String>(Arrays.asList(loadStrings("torus_flat.gcode")));
 }
 
 public void draw(){
   background(255);  
 }
-*/
 
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
-  println("button1 - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:startSliceBtn:735941:
+  println("Start Print button pressed");
+  // Checking isJobRunning is done within startPrintJob(), so I think we never have to
+  //if (devControl.isJobRunning() == false)
+  //{
+    devControl.startPrintJob(gcode);
+  //} 
+}//_CODE_:startSliceBtn:735941:
 
 public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
-  println("pauseSliceBtn - GButton >> GEvent." + event + " @ " + millis());
+  println("Pause / Resume button pressed"); 
+  if (pauseSliceBtn.getText() == "Pause"){
+    devControl.pauseJob();
+    pauseSliceBtn.setText("Resume");
+  }
+  else {
+    devControl.resumeJob();
+    pauseSliceBtn.setText("Pause");    // allows you to pause more than once per print job
+  }
 } //_CODE_:pauseSliceBtn:624877:
 
 public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
-  println("cancelPrintBtn - GButton >> GEvent." + event + " @ " + millis());
+  println("Cancel Print button pressed");
+  devControl.stopJob();
 } //_CODE_:cancelPrintBtn:781425:
 
 public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
