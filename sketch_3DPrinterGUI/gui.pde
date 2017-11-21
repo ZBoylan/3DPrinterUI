@@ -52,6 +52,7 @@ ArrayList<String> gcode;
 PGraphics rendering;
 RenderControler vis;
 boolean realsed = true;
+boolean confirmedClicked = false;
 
 int i=0;
 int j=0;
@@ -77,25 +78,27 @@ public void setup(){
      println("Failed to open serial port, aborting");
      return;
   }
-
-    // render & slicer test
-  rendering = createGraphics(250, 250, P3D);  //size of render
-
-  vis = new RenderControler(100,100,100);
-  vis.ResetCamera();
-
-  String adress = "/Users/georgeventura/Documents/3DPrinterUI/sketch_3DPrinterGUI/40mmcube.stl";
-  STLParser parser = new STLParser(adress);
-  ArrayList<Facet> data = parser.parseSTL();
-  test = new Model(data, .1, .1);
-
-  vis.Render(test, rendering);
-  image(rendering, 50 ,50);
 }
 
 public void draw(){
   background(230);
-  modelTranslationTest();
+  if (confirmedClicked){
+     rendering = createGraphics(250, 250, P3D);  //size of render
+
+    vis = new RenderControler(100,100,100);
+    vis.ResetCamera();
+    STLParser parser = new STLParser(STLFile);
+    ArrayList<Facet> data = parser.parseSTL();
+    test = new Model(data, .1, .1);
+    vis.Render(test, rendering);
+    image(rendering, 50 ,50);
+  
+  //Testing render manipulation. WIP
+  /*modelTranslationTest();
+  modelScalingTest();
+  rotationTest();
+  */
+  }
 }
 
 //prototype mouse events for render
@@ -226,6 +229,7 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   //Select New File
   STLFile = null;
+  confirmedClicked = false;
   fileTextBox.setText("Choose File...");
   //Show the input Window
   inputWindow.setVisible(true);
@@ -326,6 +330,7 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   if (fileTextBox.getText() == STLFile) {
     currentFile.setText(STLFile);
     inputWindow.setVisible(false);
+    confirmedClicked = true;
   }
 } //_CODE_:confirmBtn:275116:
 
