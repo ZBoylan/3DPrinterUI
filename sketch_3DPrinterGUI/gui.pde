@@ -1,3 +1,26 @@
+/*
+
+GUI for 3D printer
+
+Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
+
+Usage: Before running the gui.pde, ensure that sketch_3DPrinterGUI is within the package/folder 
+of this .pde file.
+Required Processing Libraries needed before running gui.pde:
+  - ControlP5
+  - G4P
+  - ToxicLibs
+  
+To start GUI, simply press the "Play" button on Processing 3.3.6 or run gui.pde by double clicking
+it.
+
+This version is a first prototype so not all features are present/functional but are accurate.
+All features are mattered to change in final implementation.
+
+*/
+
+
+
 /* =========================================================
  * ====                   WARNING                        ===
  * =========================================================
