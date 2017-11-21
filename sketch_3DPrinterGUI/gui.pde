@@ -7,9 +7,9 @@
  * use lines between the matching comment tags. e.g.
 
  void myBtnEvents(GButton button) { //_CODE_:button1:12356:
-     // It is safe to enter your event code here  
+     // It is safe to enter your event code here
  } //_CODE_:button1:12356:
- 
+
  * Do not rename this tab!
  * =========================================================
  */
@@ -25,13 +25,27 @@ import java.util.Arrays;
 DeviceController devControl;
 ArrayList<String> gcode;
 
+// for render & slicing
+PGraphics rendering;
+RenderControler vis;
+boolean realsed = true;
+
+int i=0;
+int j=0;
+
+Model test;
+
+int last;
+
 public void settings(){
-    size(1400,700,JAVA2D);
+    size(1000,700,P3D);    // must be P3D to render
 }
 
 public void setup(){
   createGUI();
   inputWindow.setVisible(false);
+
+  // Device controller test
   try {
      devControl = new DeviceController(this, "/dev/ttyUSB0", 115200, true);
   }
@@ -40,13 +54,80 @@ public void setup(){
      println("Failed to open serial port, aborting");
      return;
   }
-  
-  gcode = new ArrayList<String>(Arrays.asList(loadStrings("torus_flat.gcode")));
+
+    // render & slicer test
+  rendering = createGraphics(250, 250, P3D);  //size of render
+
+  vis = new RenderControler(100,100,100);
+  vis.ResetCamera();
+
+  String adress = "/Users/georgeventura/Documents/3DPrinterUI/sketch_3DPrinterGUI/40mmcube.stl";
+  STLParser parser = new STLParser(adress);
+  ArrayList<Facet> data = parser.parseSTL();
+  test = new Model(data, .1, .1);
+
+  vis.Render(test, rendering);
+  image(rendering, 50 ,50);
 }
 
 public void draw(){
-  background(255);  
+  background(230);
+  modelTranslationTest();
 }
+
+//prototype mouse events for render
+void modelTranslationTest()
+  {
+    if(mousePressed)
+    {
+      test.Translate(1,1);
+      vis.Render(test, rendering);
+      image(rendering, 50 ,50);
+    }
+    else
+      {
+      test.Translate(-1,-1);
+      vis.Render(test, rendering);
+      image(rendering, 50 ,50);
+      }
+  }
+
+void modelScalingTest()
+  {
+    if(mousePressed)
+    {
+      test.Scale(new PVector(1.01,1.01, 1.01));
+      vis.Render(test, rendering);
+      image(rendering, 50 ,50);
+    }
+    else
+      {
+      test.Scale(new PVector(.99, .99, .99));
+      vis.Render(test, rendering);
+      image(rendering, 50 ,50);
+      }
+  }
+
+  void rotationTest()
+    {
+      if(mousePressed)
+      {
+        POV temp = vis.getPOV();
+        temp.Rotate(1, 0);
+        vis.SetPOV(temp);
+        vis.Render(test, rendering);
+        image(rendering, 50 ,50);
+      }
+      else
+        {
+          POV temp = vis.getPOV();
+        temp.Rotate(0, 1);
+        vis.SetPOV(temp);
+        vis.Render(test, rendering);
+        image(rendering, 50 ,50);
+        }
+
+    }
 
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
   println("Start Print button pressed");
@@ -54,11 +135,11 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
   //if (devControl.isJobRunning() == false)
   //{
     devControl.startPrintJob(gcode);
-  //} 
+  //}
 }//_CODE_:startSliceBtn:735941:
 
 public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
-  println("Pause / Resume button pressed"); 
+  println("Pause / Resume button pressed");
   if (pauseSliceBtn.getText() == "Pause"){
     devControl.pauseJob();
     pauseSliceBtn.setText("Resume");
@@ -102,7 +183,7 @@ public void printWhenReadyBox_clicked(GCheckbox source, GEvent event) { //_CODE_
       printWhenReady = false;
   else
       printWhenReady = true;
-  
+
   println("printWhenReady is " + printWhenReady);
 } //_CODE_:printWhenReadyBox:392431:
 
@@ -121,7 +202,7 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
 public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   //Select New File
-  STLFile = null; 
+  STLFile = null;
   fileTextBox.setText("Choose File...");
   //Show the input Window
   inputWindow.setVisible(true);
@@ -139,37 +220,37 @@ public void sliderLayerSize_change(GSlider source, GEvent event) { //_CODE_:laye
 
 public void xAreaTextfield_change(GTextField source, GEvent event) { //_CODE_:xTextBox:544724:
   xArea = Integer.parseInt(xTextBox.getText());
-  
+
   // This is throwing a null pointer exception and crashing atm
   if (xArea < 1)
     xTextBox.setText("1");
   if (xArea > 200)
     xTextBox.setText("200");
-  
+
   println("X Area = " + xArea);
 } //_CODE_:xTextBox:544724:
 
 public void yAreaTextfield_change1(GTextField source, GEvent event) { //_CODE_:yTextBox:577150:
   yArea = Integer.parseInt(yTextBox.getText());
-  
+
   // This is throwing a null pointer exception and crashing atm
   if (yArea < 1)
     yTextBox.setText("1");
   if (yArea > 200)
     yTextBox.setText("200");
-    
+
   println("Y Area = " + yArea);
 } //_CODE_:yTextBox:577150:
 
 public void zAreaTextfield_change1(GTextField source, GEvent event) { //_CODE_:zTextBox:384490:
   zArea = Integer.parseInt(zTextBox.getText());
-  
+
   // This is throwing a null pointer exception and crashing atm
   if (zArea < 1)
     zTextBox.setText("1");
   if (zArea > 200)
     zTextBox.setText("200");
-  
+
   println("Z Area = " + zArea);
 } //_CODE_:zTextBox:384490:
 
@@ -214,7 +295,7 @@ public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcode
 
 public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
-  inputWindow.setVisible(false); 
+  inputWindow.setVisible(false);
 } //_CODE_:cancelInputBtn:629030:
 
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
@@ -230,9 +311,9 @@ public void layerSlider_change(GSlider source, GEvent event) { //_CODE_:infillSl
   layerHeight = round2(layerSlider.getValueF(), 2);
   layerValue.setText(str (layerHeight));
   println("layerHeight = " + layerHeight);
-} 
+}
 
-// Create all the GUI controls. 
+// Create all the GUI controls.
 // autogenerated do not edit
 public void createGUI(){
   G4P.messagesEnabled(false);
@@ -302,19 +383,19 @@ public void createGUI(){
   statusLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   statusLabel.setText("Status");
   statusLabel.setOpaque(false);
-  
+
   chooseFileBtn = new GButton(this, 530, 70, 80, 30);
   chooseFileBtn.setText("Choose File");
   chooseFileBtn.addEventHandler(this, "chooseFileBtn_click");
-  
+
   //Current File Label
   currentFile = new GLabel(this, 620, 80, 900, 20);
   currentFile.setTextAlign(GAlign.LEFT, GAlign.BOTTOM);
   currentFile.setFont(new java.awt.Font("Monospaced", Font.ITALIC, 12));
   currentFile.setText("No File Selected...");
   currentFile.setOpaque(false);
-  
-  
+
+
   rightArrowbtn = new GButton(this, 190, 360, 42, 36);
   rightArrowbtn.setIcon("ArrowRight.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   rightArrowbtn.addEventHandler(this, "rightArrowbtn_click1");
@@ -327,7 +408,7 @@ public void createGUI(){
   downArrowbtn = new GButton(this, 140, 380, 40, 40);
   downArrowbtn.setIcon("ArrowDown.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
-  
+
   nozzleSlider = new GSlider(this, 630, 280, 160, 40, 10.0);
   nozzleSlider.setShowValue(true);
   nozzleSlider.setLimits(0.5, 0.0, 1.0);
@@ -369,7 +450,7 @@ public void createGUI(){
   zLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   zLabel.setText("Z Area");
   zLabel.setOpaque(false);
-  
+
   inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
@@ -391,7 +472,7 @@ public void createGUI(){
   confirmBtn.addEventHandler(this, "confirmBtn_click");
   inputWindow.loop();
   inputWindow.setVisible(false);
-  
+
   //Layer Slider
   layerSlider = new GSlider(this, 30, 470, 422, 50, (float) 10.0);
   layerSlider.setShowLimits(true);
@@ -400,47 +481,47 @@ public void createGUI(){
   layerSlider.setNumberFormat(G4P.DECIMAL, 0);
   layerSlider.setOpaque(false);
   layerSlider.addEventHandler(this, "layerSlider_change");
-  
+
   layerLabel = new GLabel(this, 30, 460, 80, 30);
   layerLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   layerLabel.setText("Layer Height:");
   layerLabel.setOpaque(false);
-  
+
   layerValue = new GLabel(this, 110, 460, 90, 30);
   layerValue.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   layerValue.setText("0");
   layerValue.setOpaque(false);
-  
+
 }
 
-// Variable declarations 
+// Variable declarations
 // autogenerated do not edit
-GButton startSliceBtn; 
-GButton pauseSliceBtn; 
-GButton cancelPrintBtn; 
-GSlider infillSlider; 
-GLabel infillLabel; 
-GToggleGroup qualityGroup; 
-GOption qualityLowRad; 
-GOption qualityMedRad; 
-GOption qualityHighRad; 
-GLabel qualityLabel; 
-GCheckbox printWhenReadyBox; 
-GButton warmUpBtn; 
-GButton recenterHeadBtn; 
-GButton connectBtn; 
-GLabel statusLabel; 
-GButton chooseFileBtn; 
-GButton rightArrowbtn; 
-GButton upArrowbtn; 
-GButton leftArrowbtn; 
-GButton downArrowbtn; 
+GButton startSliceBtn;
+GButton pauseSliceBtn;
+GButton cancelPrintBtn;
+GSlider infillSlider;
+GLabel infillLabel;
+GToggleGroup qualityGroup;
+GOption qualityLowRad;
+GOption qualityMedRad;
+GOption qualityHighRad;
+GLabel qualityLabel;
+GCheckbox printWhenReadyBox;
+GButton warmUpBtn;
+GButton recenterHeadBtn;
+GButton connectBtn;
+GLabel statusLabel;
+GButton chooseFileBtn;
+GButton rightArrowbtn;
+GButton upArrowbtn;
+GButton leftArrowbtn;
+GButton downArrowbtn;
 GWindow inputWindow;
-GTextField fileTextBox; 
-GButton searchFileBtn; 
-GTextArea gcodeTextBox; 
-GButton cancelInputBtn; 
-GButton confirmBtn; 
+GTextField fileTextBox;
+GButton searchFileBtn;
+GTextArea gcodeTextBox;
+GButton cancelInputBtn;
+GButton confirmBtn;
 String STLFile;
 float layerHeight;
 GLabel currentFile;
@@ -450,13 +531,13 @@ GSlider layerSlider;
 GLabel layerLabel;
 GLabel layerValue;
 
-GSlider nozzleSlider; 
-GLabel nozzleLabel; 
-GSlider layerSizeSlider; 
-GLabel layerSizeLabel; 
-GTextField xTextBox; 
-GTextField yTextBox; 
-GTextField zTextBox; 
-GLabel xLabel; 
-GLabel yLabel; 
+GSlider nozzleSlider;
+GLabel nozzleLabel;
+GSlider layerSizeSlider;
+GLabel layerSizeLabel;
+GTextField xTextBox;
+GTextField yTextBox;
+GTextField zTextBox;
+GLabel xLabel;
+GLabel yLabel;
 GLabel zLabel;
