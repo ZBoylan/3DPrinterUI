@@ -90,6 +90,8 @@ public void draw(){
     STLParser parser = new STLParser(STLFile);
     ArrayList<Facet> data = parser.parseSTL();
     test = new Model(data, .1, .1);
+    test.Slice();      // Create gcode in Model object
+    gcode = test.getGCode();   // assign gcode from Model object to gui.pde gcode variable - be used to start print job
     vis.Render(test, rendering);
     image(rendering, 50 ,50);
   
