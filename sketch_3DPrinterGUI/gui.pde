@@ -42,11 +42,12 @@ import g4p_controls.*;
 import java.awt.*;
 import java.io.File;
 
+// for DeviceController class
 import processing.serial.*;
 import java.util.Arrays;
-
 DeviceController devControl;
 ArrayList<String> gcode;
+// end of DeviceController 
 
 // for render & slicing
 PGraphics rendering;
@@ -71,7 +72,7 @@ public void setup(){
 
   // Device controller test
   try {
-     devControl = new DeviceController(this, "/dev/ttyUSB0", 115200, true);
+     devControl = new DeviceController(true);  //updated for new DeviceController constructor when using test mode
   }
   catch(RuntimeException e) {
      e.printStackTrace();

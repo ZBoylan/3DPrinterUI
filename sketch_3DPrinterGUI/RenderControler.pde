@@ -42,7 +42,7 @@ public class RenderControler
         frame.lights();
         frame.background(255);
         
-        if(Subject.isModified() && !RenderFacets)
+        if(Subject.checkModifications() && !RenderFacets)
           {
             Subject.Slice();
           }
