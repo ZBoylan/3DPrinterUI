@@ -44,7 +44,7 @@ public class RenderControler
         
         if(Subject.checkModifications() && !RenderFacets)
           {
-            Subject.Slice();
+            //Subject.Slice();      //Slice() does not exist anymore. Waiting on updated Rendering team files.
           }
         frame.fill(255,0,0);
         frame = Visualizer.Render(frame, Subject);
@@ -128,13 +128,13 @@ public class RenderControler
      
     public void FocusOnModel(Model Subject)
       {
-        Camera.setFocus(Subject.getCenter());
+        //Camera.setFocus(Subject.getCenter());      //getCenter() does not exist anymore. Waiting on updated Rendering team files.
       }
       
     public void CenterModelOnBuildPlate(Model Subject)
       {
-        PVector center = Subject.getCenter();
-        Subject.Translate(Width/2 - center.x, Length/2 - center.y);
+        //PVector center = Subject.getCenter();   //getCenter() does not exist anymore. Waiting on updated Rendering team files.
+        //Subject.Translate(Width/2 - center.x, Length/2 - center.y);
       }
   
     public float[] getDim()

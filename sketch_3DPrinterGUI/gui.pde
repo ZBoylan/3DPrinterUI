@@ -90,10 +90,12 @@ public void draw(){
     vis.ResetCamera();
     STLParser parser = new STLParser(STLFile);
     ArrayList<Facet> data = parser.parseSTL();
-    test = new Model(data, .1, .1);
-    test.Slice();      // Create gcode in Model object
-    gcode = test.getGCode();   // assign gcode from Model object to gui.pde gcode variable - be used to start print job
-    vis.Render(test, rendering);
+   // test = new Model(data, .1, .1);  //Model constructor function changed to     public Model(ArrayList<Facet> facets)
+    
+    // In newest Slicing team files - the Slicer class will create the gcode with function public ArrayList<String> createGCode(ArrayList<Layer> layers)
+    //test.Slice();      // Create gcode in Model object
+    //gcode = test.getGCode();   // assign gcode from Model object to gui.pde gcode variable - be used to start print job
+   // vis.Render(test, rendering);
     image(rendering, 50 ,50);
   
   //Testing render manipulation. WIP
@@ -104,6 +106,7 @@ public void draw(){
   }
 }
 
+/*    // Wait on these functions until we receive more updated files.
 //prototype mouse events for render
 void modelTranslationTest()
   {
@@ -157,6 +160,7 @@ void modelScalingTest()
         }
 
     }
+    */
 
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
   println("Start Print button pressed");
