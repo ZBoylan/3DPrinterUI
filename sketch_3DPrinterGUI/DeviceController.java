@@ -4,13 +4,14 @@
    John Caley, Melissa Chillington, David Hanely, Steven Rollo
 
    Usage:
-   DeviceController should be instanciated when the printer connect button is pressed
-   A serial port name and baud rate must be supplied
+   DeviceController can be created any time prior to or when the printer connection is started
+   A serial port name and baud rate must be supplied in either the constructor, or the
+   connectSerial() method in order to connect to a printer
    Printing jobs can be started with startPrintJob() - see the method for more info
    pause/resume/stopJob() control the state of the current print job
    Only one job can be run at once, isJobRunning() check if one is running
    Call disconnectSerial() prior to ending the program or dispoising of a DeviceController instance
-   
+
    processing.serial.* must also be imported in the main Processing applet to use this class
 
    Some notes and thoughts:
@@ -29,6 +30,7 @@ import processing.serial.*;
 import java.lang.Thread;
 import java.util.ArrayList;
 
+
 public class DeviceController extends Thread {
 
    /*
@@ -36,25 +38,44 @@ public class DeviceController extends Thread {
    */
 
    /*
-      Constructor for DeviceController. Takes only the necessary params for instantiation:
-       a reference to the main PApplet, and serial port info
+      First constructor for DeviceController. Used when the printer serial import
+       is known and available. Serial port params are passed to the constructor,
+       and a connection is attempted.
        Throws a RuntimeException if the serial port provided cannot be opened
    */
-   DeviceController(PApplet thisApplet, String port, int baudRate, boolean testMode) throws RuntimeException {
-      //Set test mode
-      this.testMode = testMode;
-     
+   DeviceController(PApplet thisApplet, String port, int baudRate) throws RuntimeException {
+     this.thisApplet = thisApplet;
+     this.port = port;
+     this.baudRate = baudRate;
       //Create a serial connection to the printer on the specified port / baud rate
       // Serial needs access to the PApplet object of the main program
-      if(!testMode) {
-         System.out.println("Connecting to printer on port " + port);
-           serialCom = new Serial(thisApplet, port, baudRate);
-           System.out.println("Connected to port " + port);
+      /*
+      if(!connectSerial(thisApplet, port, baudRate)) {
+         //This version of the consturctor will fail if the supplied serial port is unavailable
+         throw new RuntimeException("Failed to create DeviceController with serial" +
+         " port: failed to open port " + port);
       }
-      else {
+      */
+      //delay for printer
+      //long t = System.currentTimeMillis();
+      //while (System.currentTimeMillis() - t != 2000){}
+   }
+   /*
+      Second constructor. Allows testMode to be set. Does not attempt to
+       start a serial connection
+   */
+   DeviceController(boolean testMode) {
+      //Set test mode
+      this.testMode = testMode;
+      if(testMode) {
          System.out.println("Proceeding in test mode");
       }
-      comConnected = true;
+   }
+   /*
+      Third constructor. Takes no params, testMode is false and no serial connection
+       is attempted.
+   */
+   DeviceController() {
    }
    /*
       Starts a new print job in its own thread using the provided GCode "file".
@@ -72,13 +93,15 @@ public class DeviceController extends Thread {
       }
 
       //Currently, only one job can be running at a time
-      if(!isJobRunning() && comConnected) {
+      // Also, the serial port must be connected, or test mode must be active
+      //if(!isJobRunning() && (sdaConnected || testMode)) {
          //Store the GCode file internally, then start the printing thread
          this.GCode = GCodeFile;
+         //run();
          start();
          return true;
-      }
-      return false;
+      //}
+      //return false;
    }
    /*
       Stops any currently running job
@@ -149,20 +172,52 @@ public class DeviceController extends Thread {
       return true;
    }
    /*
+      Connects to a printer on the specified serial port
+      Returns true if the connection was successful, or false if the connection failed
+   */
+   public boolean connectSerial(PApplet thisApplet, String port, int baudRate) {
+      if(!sdaConnected) {
+         try {
+            System.out.println("Connecting to printer on port " + port);
+
+            serialCom = new Serial(thisApplet, port, baudRate);
+            sdaConnected = true;
+
+            System.out.println("Connected to port " + port);
+
+            return true;
+         }
+         catch(RuntimeException e) {
+           System.out.println("Failed to open serial port, aborting");
+           return false;
+         }
+      }
+      System.out.println("Serial port is already connected...");
+      return false;
+   }
+   /*
       Disconnects the computer from the printer serial port. This should be called
       at program close, or if a disconnect button is implemented
       Returns true if disconnect was sucessful, or false if there was no connection to disconnect
    */
    public boolean disconnectSerial() {
-      if(serialCom != null) {
+      if(serialCom != null && sdaConnected) {
          serialCom.stop();
+         sdaConnected = false;
          return true;
       }
+      System.out.println("Serial port is already disconnected...");
       return false;
    }
    /*
+      Checks if the serial port is connected
+   */
+   public boolean isSerialConnected() {
+      return sdaConnected;
+   }
+   /*
       Enables test mode, for testing UI interaction and threading
-      Print jobs will run without sending any commands to the com port, and
+      Print jobs will run without sending any commands to the serial port, and
       will not wait for responses
    */
    public boolean setTestMode(boolean testMode) {
@@ -176,6 +231,24 @@ public class DeviceController extends Thread {
        this shouldn't be called directly by anyone
    */
    public void run() {
+     if(!connectSerial(thisApplet, port, baudRate)) {
+         //This version of the consturctor will fail if the supplied serial port is unavailable
+         throw new RuntimeException("Failed to create DeviceController with serial" +
+         " port: failed to open port " + port);
+      }
+      /*
+      serialCom.write("");
+      String response = "";
+      do{
+        response = serialCom.readString();
+        if(response != null) {
+           while(!response.contains("\r")) {
+              String temp = serialCom.readString();
+              response += ((temp == null) ? "" : temp);
+           }
+        } 
+      }while (response != null && response != "start");
+      */
       runPrintJob();
    }
 
@@ -202,7 +275,7 @@ public class DeviceController extends Thread {
    /*
       Runs any custom start code code via using the printJob procedure
    */
-   private boolean runWarmUp() {
+   private boolean runStartCode() {
       if(startCode != null) {
          startPrintJob(startCode);
       }
@@ -211,7 +284,7 @@ public class DeviceController extends Thread {
    /*
       Runs any custom end code via using the printJob procedure
    */
-   private boolean runCoolDown() {
+   private boolean runStopCode() {
       if(endCode != null) {
          startPrintJob(endCode);
       }
@@ -227,7 +300,7 @@ public class DeviceController extends Thread {
          jobRunning = true;
       }
 
-      runWarmUp();
+      runStartCode();
 
       for(int i = 0; i < GCode.size(); i++) {
          if(pauseRequested()) {
@@ -249,7 +322,7 @@ public class DeviceController extends Thread {
          }
 
          if(!GCode.get(i).startsWith(";")) {
-            boolean status = sendGCodeLine(GCode.get(i).split(";")[0]);
+            boolean status = sendGCodeLine(GCode.get(i).split(" ;")[0]);
             while(!status) {
                System.out.println("Line " + i + " failed, retrying");
                status = sendGCodeLine(GCode.get(i));
@@ -258,7 +331,7 @@ public class DeviceController extends Thread {
          }
       }
 
-      runCoolDown();
+      runStopCode();
 
       return true;
    }
@@ -272,6 +345,7 @@ public class DeviceController extends Thread {
    private boolean sendGCodeLine(String line) {
       //Test mode codepath, skips sending commands to the printer
       synchronized(this) {
+         //This try-catch block is just to keep java happy when using sleep
          if(testMode) {
             try {
                sleep(50);
@@ -283,15 +357,16 @@ public class DeviceController extends Thread {
          }
       }
 
-      String response;
+      String response = "";
       long startTime = System.currentTimeMillis();
       serialCom.write(line + "\n");
 
       while(true) {
          response = serialCom.readString();
          if(response != null) {
-            while(!response.endsWith("\n")) {
-               response += serialCom.readString();
+            while(!response.contains("\r")) {
+               String temp = serialCom.readString();
+               response += ((temp == null) ? "" : temp);
             }
             System.out.println(response);
             if(response.contains("ok")) {
@@ -319,10 +394,13 @@ public class DeviceController extends Thread {
    private ArrayList<String>  GCode;
    private ArrayList<String>  startCode;
    private ArrayList<String>  endCode;
+   private PApplet            thisApplet;
+   private String             port;
+   private int                baudRate;
    private boolean            testMode      = false;
-   private boolean            comConnected  = false;
+   private boolean            sdaConnected  = false;
    private boolean            pauseRequest  = false;
    private boolean            stopRequest   = false;
    private boolean            jobRunning    = false;
-   private final int          timeout       = 60000;
+   private final int          timeout       = 10000;
 };
