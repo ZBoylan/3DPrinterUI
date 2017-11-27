@@ -14,259 +14,129 @@ Authors: Slicing Team (Andrew Figueroa)
 */
 
 public class Model
+{
+  private ArrayList<Facet> facets;
+  private boolean isModified;
+  private PVector scaling;
+  private PVector rotation;
+  private PVector translation;
+  
+  /**
+   * Constructor for a Model object given an ArrayList<Facet>.
+   *
+   * @param  facets  The ArrayList<Facet> to pass into this object.
+   */
+  public Model(ArrayList<Facet> facets)
   {
-    private ArrayList<Facet>   facets;     
-    private ArrayList<String>  GCode;
-    private ArrayList<Layer>    layers;
-  
-    private float layerHeight;
-    private float inFill;
-  
- 
-  
-  
-    private boolean isModified;
-                            
-  
-  
-    public Model(ArrayList<Facet> facets, float LH, float IF)
-      {
-        //set state variables
-        isModified = true;      //facets need to be sliced to G-code       
-        
-        this.facets = facets;  //initilize facets
-        
-        //set slicing setting      
-        this.inFill = IF;             
-        this.layerHeight = LH;
-    }
-  
-  
-  public void Slice()
-    {
-      if( isModified ) 
-        {
-           Slicer alg = new Slicer(facets, layerHeight, inFill);
-           layers = alg.sliceLayers();
-           GCode = alg.createGCode(layers);    
-           synchronize();
-           isModified = false;
-        }
-    }  
-  
-  
-  public void Scale(PVector scale)
-    {
-      
-      //This updates the facet vertex coordinates
-      //center does not need to be recomputed because mean of all cordnats wont change
-      for (Facet facet : facets) {
-        PVector vertices[] = facet.getVerticies();
-        for(int i=0; i<3; i++)
-          {  
-            if(scale.x > 0)
-              {
-                vertices[i].x *= scale.x;
-              }
-            if(scale.y > 0)
-              {
-                vertices[i].y *= scale.y;
-              }
-            if(scale.z > 0)
-              {
-                vertices[i].z *= scale.z;
-              }
-          }
-        facet.setVertices(vertices[0], vertices[1], vertices[2]); 
-      } 
-      isModified = true;
-    }
-  
-  
-    //theta specifies the angle of rotation arond the x axis
-    //phi spevifies the angle of rotation around the z axis
-  public void Rotate(float theta, float phi)
-    {
-      if(theta == 0 && phi == 0)
-        {
-          return;
-        }  
-      theta = theta - int(theta / 360)*360;
-      phi = phi -  int(phi / 180)*180;
-      if(theta < 0)  
-        {
-          theta += 360;
-        }
-      if(phi < 0)
-        {
-          phi += 180;
-        }
-     
-      
-     
-      //rotate each facet around the X, Y, and Z axis 
-      for (Facet facet : facets) 
-        {
-          PVector[] temp = facet.getVerticies();
-          
-          for(int i=0; i<3; i++)
-            {
-               //TODO 
-
-            }
-            facet.setVertices(temp[0], temp[1], temp[2]);
-         }
-       isModified = true;
-       levelModel();
-    }
- 
-  public void Translate(float X, float Y)
-    {
-      if(X == 0 && Y == 0 ){
-            return;
-        }
-      for (Facet facet : facets) 
-        {
-           PVector[] temp = facet.getVerticies();
-           facet.setVertices(temp[0].add(X,Y,0), temp[1].add(X,Y,0), temp[2].add(X,Y,0));
-        }
-      isModified = true;
-      levelModel();    
-    }
-    
-  
-  public void setInfill(float newFill)
-    {
-      inFill = newFill;
-      isModified = true;
-    }
-    
-  
-  public float getInFill()
-    {
-       return inFill;
-    }
-  
-  
-  public void setLayerHeight(float newH)
-    {
-      layerHeight = newH;
-      isModified = true;
-    }
-    
-  
-  public float getGetLayerHeight()
-    {
-       return layerHeight;
-    }
-   
-   
-  public void TESTsetLayers(ArrayList<Layer> layers)
-    {
-     this.layers = layers; 
-    }
-    
-    
-  public boolean isModified()
-    {
-      return isModified;
-    }
-    
-    
-  public PVector getCenter()
-    {
-      float AvgX=0;
-        float AvgY=0;
-        float AvgZ=0;
-        int n = facets.size();
-        PVector[] temp;
-        float tempAvg = 0;
-        for (Facet facet : facets) {
-           temp = facet.getVerticies();
-           tempAvg = 0;
-           for(int i=0; i<3; i++){
-              tempAvg += temp[i].x / 3;
-           }
-           AvgX += tempAvg/n;
-           
-           tempAvg = 0;
-           for(int i=0; i<3; i++){
-              tempAvg += temp[i].y / 3;
-           }
-           AvgY += tempAvg/n;
-           
-           tempAvg = 0;
-           for(int i=0; i<3; i++){
-              tempAvg += temp[i].z / 3;
-           }
-           AvgZ += tempAvg/n;
-        }
-      return new PVector(AvgX, AvgY, AvgZ);
-    }
-      
-
-  
-  public ArrayList<Facet> getFacets()
-    {
-      return facets;
-    }
-  
-  
-  public void setFacets(ArrayList<Facet> in)
-    {
-      facets = in;
-      isModified = true;
-    }
-  
-  
-  public ArrayList<String> getGCode()
-    {
-      return GCode;
-    }
-  
-  
-  public ArrayList<Layer> getLayers()
-    {
-      return layers;
-    }
-  
-  
-  public void levelModel()
-    {
-      //find lowest point
-      PVector min = facets.get(0).GetLowest();
-      for (Facet facet : facets) 
-        {
-           if(facet.GetLowest().z < min.z)
-             {
-               min = facet.GetLowest();
-             }
-         }
-       
-       //invert the value of the lowest point 
-       //models above the floor are moved down
-       //models bellow are moved up
-       min.z = -min.z;
-       min.x=0;
-       min.y=0;
-       
-       //update all facets 
-       for (Facet facet : facets) 
-         {
-           PVector[] temp = facet.getVerticies();
-           facet.setVertices(temp[0].add(min), temp[1].add(min), temp[2].add(min));
-         }
-         
-         isModified = true;
-    }
- 
- 
- 
-  //this function will read the gcode from the 
-  //adress provided in the constuctor to sycronize the facet reprprsentation to the G-code reprprsentation
-  private void synchronize()
-    {
-      //TODO
-    }
-    
+    this.facets = facets;
+    isModified = false;
+    scaling = new PVector(0, 0, 0);
+    rotation = new PVector(0, 0, 0);
+    translation = new PVector(0, 0, 0);
   }
+  
+  /**
+   * This method will return the ArrayList<Facet> of this object.
+   *
+   * @return  The ArrayList<Facet> of this object.
+   */
+  public ArrayList<Facet> getFacets()
+  {
+    return facets;
+  }
+  
+  /**
+   * This method will set this object's facet list with the input ArrayList<Facet>.
+   *
+   * @param  newFacets  The ArrayList<Facet> to pass to this object.
+   */
+  public void setFacets(ArrayList<Facet> newFacets) {
+    facets = newFacets;
+  }
+  
+  /**
+   * this method will return the scaling values for this model.
+   *
+   * @return  The scaling PVector (x, y, z) values for this model.
+   */
+  public PVector getScale()
+  {
+    return scaling; 
+  }
+  
+  /**
+   * This method will set the scaling of this model to the input.
+   *
+   * @param  amount  The PVector (x, y, z) values to set the scaling.
+   */
+  public void setScaling(PVector amount)
+  {
+    isModified = checkModifications();
+  }
+  
+  /**
+   * This method will return the rotation values for this model.
+   *
+   * @return  The rotation PVector(x, y, z) values for this model.
+   */
+  public PVector getRoatation()
+  {
+    return rotation; 
+  }
+  
+  /** 
+   * This method will set the rotation of this model to the input.
+   *
+   * @param  amount  The PVector (x, y, z) values to set the rotation.
+   */
+  public void setRoation(PVector amount)
+  {
+    isModified = checkModifications();
+  }
+  
+  /** 
+   * This method will return the translation values for this model.
+   *
+   * @return  The translation PVector (x, y, z) values for this model.
+   */
+  public PVector getTranslation()
+  {
+    return translation;
+  }
+  
+  /**
+   * This method will set the translation of this model to the input.
+   *
+   * @param  amount  The PVector (x, y, z) values to set the translation.
+   */
+  public void setTranslation(PVector amount)
+  {
+    translation = amount;
+    isModified = checkModifications();
+  }
+  
+  /**
+   * This method will determine if one PVector is equal to another based on their 3 values.
+   *
+   * @param  a  The first PVector.
+   * @param  b  The second PVector.
+   * @return    Return whether the PVectors are equal based on their (x, y, z) values.
+   */
+  private boolean pVectorEquals(PVector a, PVector b)
+  {
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+  }
+  
+  /**
+   * This method will determine if the scaling, rotation, or translation
+   * of the model was changed.
+   *
+   * @return  Whether the scaling, rotation, or translation of the model was changed.
+   */
+  private boolean checkModifications()
+  {
+    PVector origin = new PVector(0, 0, 0);
+    return pVectorEquals(scaling, origin) && pVectorEquals(rotation, origin)
+           && (pVectorEquals(translation, origin));
+  }
+}
