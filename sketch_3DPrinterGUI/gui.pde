@@ -55,7 +55,7 @@ Model test;
 int last;
 
 public void settings(){
-    size(1570,950,P3D);    // must be P3D to render
+    size(1570,950, JAVA2D);    // must be P3D to render
 }
 
 public void setup(){
@@ -357,6 +357,16 @@ public void warmupcancelBtn_click(GButton source, GEvent event) {
   warmupWindow.setVisible(false);
 }
 
+synchronized public void warmupWin_draw(PApplet appc, GWinData data) { 
+  appc.background(230);
+}
+
+//Warmup Cancel Button Click
+public void logCloseBtn_click(GButton source, GEvent event) { 
+  println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+  logWindow.setVisible(false);
+}
+
 
 //Homing Button Clicked
 public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHeadBtn:245560:
@@ -389,7 +399,9 @@ public void downArrowbtn_click1(GButton source, GEvent event) { //_CODE_:downArr
   println("downArrowbtn - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:downArrowbtn:888588:
 
-
+synchronized public void logWin_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
+  appc.background(230);
+} //_CODE_:inputWindow:608766:
 
 //Choose File Window
 synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
@@ -744,6 +756,20 @@ public void createGUI(){
   warmupcancelBtn.setText("Cancel");
   warmupcancelBtn.addEventHandler(this, "warmupcancelBtn_click");
   warmupWindow.loop();
+  
+  //Log Window
+  logWindow = GWindow.getWindow(this, "3D Printer Log", 0, 0, 300, 350, JAVA2D);
+  logWindow.noLoop();
+  logWindow.addDrawHandler(this, "logWin_draw1");
+  logTextBox = new GTextField(logWindow, 10, 10, 290, 290);  //should have scrollbar
+  logTextBox.setOpaque(true);
+  //logTextBox.addEventHandler(this, "headTempTextBox_change");
+  //Close logWindow button
+  logCloseBtn = new GButton(logWindow, 10, 310, 80, 30);
+  logCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  logCloseBtn.setText("Close");
+  logCloseBtn.addEventHandler(this, "logCloseBtn_click");
+  logWindow.loop();
 }
 
                                        //Variables:
