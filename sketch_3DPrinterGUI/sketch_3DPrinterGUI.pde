@@ -11,7 +11,7 @@ int yArea;
 int zArea;
 float nozzleDiameter;  //range 0-1
 //float layerHeight;     //range 0-.4
-float layerSize;       //range range 1-2
+float layerScale;       //range range 1-2
 //float topLayer;
 //float bottomLayer;
 

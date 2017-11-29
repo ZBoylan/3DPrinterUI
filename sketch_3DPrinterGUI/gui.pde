@@ -65,7 +65,7 @@ public void setup(){
 
   // Device controller test
   try {
-     devControl = new DeviceController(this, "/dev/ttyUSB0", 115200, true);
+     devControl = new DeviceController(true);
   }
   catch(RuntimeException e) {
      e.printStackTrace();
@@ -85,12 +85,12 @@ public void draw(){
     vis.ResetCamera();
     STLParser parser = new STLParser(STLFile);
     ArrayList<Facet> data = parser.parseSTL();
-    test = new Model(data, .1, .1);
+    /*test = new Model(data, .1, .1);
     test.Slice();      // Create gcode in Model object
     gcode = test.getGCode();   // assign gcode from Model object to gui.pde gcode variable - be used to start print job
     vis.Render(test, rendering);
     image(rendering, 50 ,50);
-  
+  */
   //Testing render manipulation. WIP
   /*modelTranslationTest();
   modelScalingTest();
@@ -100,7 +100,7 @@ public void draw(){
 }
 
 //prototype mouse events for render
-void modelTranslationTest()
+/*void modelTranslationTest()
   {
     if(mousePressed)
     {
@@ -152,7 +152,7 @@ void modelScalingTest()
         }
 
     }
-
+*/
                                         //Event Handlers
 //Start Button Click
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
