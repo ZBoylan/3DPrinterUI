@@ -381,7 +381,7 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 } //_CODE_:cancelPrintBtn:781425:
 
 //Console Button Click
-public void consolePrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
+public void consoleBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
   println("Console Print button pressed");
   logWindow.setVisible(true);
 } //_CODE_:cancelPrintBtn:781425:
@@ -775,7 +775,6 @@ public void createGUI(){
   logWindow.addDrawHandler(this, "logWin_draw1");
   logTextBox = new GTextField(logWindow, 10, 10, 290, 290);  //should have scrollbar
   logTextBox.setOpaque(true);
-  //logTextBox.addEventHandler(this, "headTempTextBox_change");
   //Close logWindow button
   logCloseBtn = new GButton(logWindow, 10, 310, 80, 30);
   logCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
