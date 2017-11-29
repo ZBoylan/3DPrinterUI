@@ -306,9 +306,9 @@ public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:6
   warmupWindow.setVisible(true);
 } //_CODE_:warmUpBtn:690847:
 //Warmup Window
-synchronized public void warmupWin_draw(PApplet appc, GWinData data) { 
-  appc.background(230);
-} 
+//synchronized public void warmupWin_draw(PApplet appc, GWinData data) { 
+  //appc.background(230);
+//} 
 //Warmup Confirm Button Click
 public void warmupconfirmBtn_click(GButton source, GEvent event) { 
   println("warmupconfirmBtn - GButton >> GEvent." + event + " @ " + millis());
@@ -680,7 +680,7 @@ public void createGUI(){
   cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
   
   //Console Button
-  consolBtn = new GButton(this, 1400, 700, 100, 40);
+  consoleBtn = new GButton(this, 1400, 700, 100, 40);
   consoleBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   consoleBtn.setText("Console");
   consoleBtn.addEventHandler(this, "consoleBtn_click"); 
@@ -849,6 +849,9 @@ GButton homingBtn;
 GButton connectBtn;
 
 GButton consoleBtn;
+GWindow logWindow;
+GTextField logTextBox;
+GButton logCloseBtn;
 
 GLabel statusLabel;
 
