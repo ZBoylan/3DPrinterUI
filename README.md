@@ -32,10 +32,10 @@ To run gui.pde and sketch_3DPrinterGUI.pde correctly, be sure to include all fil
 
 ### Usage
 To run the gui:
-> Open the file where the project is locates > Open _gui.pde_ > Click the "Play" button.
+> Go to where the project is located > Open _gui.pde_ > Click the "Run" button (button that looks like a "Play" symbol).
 
 ### Authors
-* Zachary Boylan
 * Zaid Bhujwala
-* George Ventura
+* Zachary Boylan
 * Rebecca Peralta
+* George Ventura
