@@ -62,6 +62,7 @@ public void setup(){
   createGUI();
   inputWindow.setVisible(false);
   warmupWindow.setVisible(false);
+  logWindow.setVisible(false);
 
   // Device controller test
   try {
@@ -154,41 +155,7 @@ void modelScalingTest()
     }
 */
                                         //Event Handlers
-//Start Button Click
-public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
-  println("Start Print button pressed");
-  // Checking isJobRunning is done within startPrintJob(), so I think we never have to
-  //if (devControl.isJobRunning() == false)
-  //{
-    devControl.startPrintJob(gcode);
-  //}
-}//_CODE_:startSliceBtn:735941:
-
-
-
-//Pause Button Click
-public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
-  println("Pause / Resume button pressed");
-  if (pauseSliceBtn.getText() == "Pause"){
-    devControl.pauseJob();
-    pauseSliceBtn.setText("Resume");
-  }
-  else {
-    devControl.resumeJob();
-    pauseSliceBtn.setText("Pause");    // allows you to pause more than once per print job
-  }
-} //_CODE_:pauseSliceBtn:624877:
-
-
-
-//Cancel Button Click
-public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
-  println("Cancel Print button pressed");
-  devControl.stopJob();
-} //_CODE_:cancelPrintBtn:781425:
-
-
-
+                                        
 //Choose File Button Click
 public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
@@ -370,7 +337,44 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:connectBtn:421460:
 
+//Start Button Click
+public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
+  println("Start Print button pressed");
+  // Checking isJobRunning is done within startPrintJob(), so I think we never have to
+  //if (devControl.isJobRunning() == false)
+  //{
+    devControl.startPrintJob(gcode);
+  //}
+}//_CODE_:startSliceBtn:735941:
 
+
+
+//Pause Button Click
+public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
+  println("Pause / Resume button pressed");
+  
+  if (pauseSliceBtn.getText() == "Pause"){
+    devControl.pauseJob();
+    pauseSliceBtn.setText("Resume");
+  }
+  else {
+    devControl.resumeJob();
+    pauseSliceBtn.setText("Pause");    // allows you to pause more than once per print job
+  }
+} //_CODE_:pauseSliceBtn:624877:
+
+
+//Cancel Button Click
+public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
+  println("Cancel Print button pressed");
+  devControl.stopJob();
+} //_CODE_:cancelPrintBtn:781425:
+
+//Console Button Click
+public void consolePrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
+  println("Console Print button pressed");
+  logWindow.setVisible(true);
+} //_CODE_:cancelPrintBtn:781425:
 
 //Arrow Button Clicked
 public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
@@ -417,7 +421,7 @@ public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcode
   println("textarea1 - GTextArea >> GEvent." + event + " @ " + millis());
 } //_CODE_:gcodeTextBox:726640:
 
-//Cancel Input BUtton Click
+//Cancel Input Button Click
 public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   inputWindow.setVisible(false);
@@ -444,24 +448,6 @@ public void createGUI(){
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
   surface.setTitle("Sketch Window");
-  
-  //Start Button
-  startSliceBtn = new GButton(this, 1160, 620, 100, 40);
-  startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  startSliceBtn.setText("Start");
-  startSliceBtn.addEventHandler(this, "startSliceBtn_click");
-  
-  //Pause Button
-  pauseSliceBtn = new GButton(this, 1280, 620, 100, 40);
-  pauseSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  pauseSliceBtn.setText("Pause");
-  pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
-  
-  //Cancel Button
-  cancelPrintBtn = new GButton(this, 1400, 620, 100, 40);
-  cancelPrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  cancelPrintBtn.setText("Cancel");
-  cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
   
   //Choose File Button
   chooseFileBtn = new GButton(this, 1160, 30, 100, 40);
@@ -663,6 +649,32 @@ public void createGUI(){
   connectBtn.setText("Connect to Printer");
   connectBtn.addEventHandler(this, "connectBtn_click");
   
+    //Start Button
+  startSliceBtn = new GButton(this, 1160, 620, 100, 40);
+  startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  startSliceBtn.setText("Start");
+  startSliceBtn.addEventHandler(this, "startSliceBtn_click");
+  
+  //Pause Button
+  pauseSliceBtn = new GButton(this, 1280, 620, 100, 40);
+  pauseSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  pauseSliceBtn.setText("Pause");
+  pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
+  
+  //Cancel Button
+  cancelPrintBtn = new GButton(this, 1400, 620, 100, 40);
+  cancelPrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  cancelPrintBtn.setText("Cancel");
+  cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
+  
+  //Console Button
+  consolBtn = new GButton(this, 1400, 700, 100, 40);
+  consoleBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  consoleBtn.setText("Console");
+  consoleBtn.addEventHandler(this, "consoleBtn_click"); 
+  
+  
+  
   //Status Label
   statusLabel = new GLabel(this, 1160, 800, 230, 30);
   statusLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
@@ -809,6 +821,8 @@ GButton warmUpBtn;
 GButton homingBtn;
 
 GButton connectBtn;
+
+GButton consoleBtn;
 
 GLabel statusLabel;
 
