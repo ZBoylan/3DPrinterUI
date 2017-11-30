@@ -59,7 +59,7 @@ Model test;
 int last;
 
 public void settings(){
-    size(1570,950, JAVA2D);    // must be P3D to render
+    size(1570,950, P3D);    // must be P3D to render
 }
 
 public void setup(){
@@ -67,6 +67,7 @@ public void setup(){
   inputWindow.setVisible(false);
   warmupWindow.setVisible(false);
   logWindow.setVisible(false);
+  errorWindow.setVisible(false);
 
   // Device controller test
   try {
@@ -288,17 +289,30 @@ public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:6
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   warmupWindow.setVisible(true);
 } //_CODE_:warmUpBtn:690847:
-//Warmup Window
-//synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
-  //appc.background(230);
-//}
+
 //Warmup Confirm Button Click
 public void warmupconfirmBtn_click(GButton source, GEvent event) {
   println("warmupconfirmBtn - GButton >> GEvent." + event + " @ " + millis());
+  //Set Head Temp
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
+  //Set Heating Head Code
+  heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
+  println("Heating Head Code set to " + heatingheadCode[0]);
+  //Set Heating Head + Waiting Code
+  heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
+  println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  
+  //Set Bed Temp
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   println("Bed Temperature = " + bedTemp);
+  //Set Heating Bed Code
+  heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
+  println("Heating Bed Code set to " + heatingbedCode[0]);
+  //Set Heating Bed + Waiting Code
+  heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
+  println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  
   warmupWindow.setVisible(false);
 }
 //Warmup Cancel Button Click
@@ -311,8 +325,9 @@ synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
   appc.background(230);
 }
 
-//Warmup Cancel Button Click
-public void logCloseBtn_click(GButton source, GEvent event) {
+
+//Log Cancel Button Click
+public void logCloseBtn_click(GButton source, GEvent event) { 
   println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
   logWindow.setVisible(false);
 }
@@ -408,6 +423,12 @@ public void searchFileBtn_click(GButton source, GEvent event) { //_CODE_:searchF
 
 public void fileSelected(File selection) {
   STLFile = selection.getAbsolutePath();
+  if (STLFile.indexOf("stl", STLFile.length() - 5) == -1 )
+  {
+    errorTextbox.setText("Incorrect file type chosen (non-STL file type)");
+    errorWindow.setVisible(true);
+    STLFile = "";
+  }
   fileTextBox.setText(STLFile);
 }
 
@@ -431,6 +452,19 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
     confirmedClicked = true;
   }
 } //_CODE_:confirmBtn:275116:
+
+
+//Error Window
+synchronized public void errorWin_draw(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
+  appc.background(230);
+} //_CODE_:inputWindow:608766:
+
+//Error Close Button Click
+public void errorCloseBtn_click(GButton source, GEvent event) { 
+  println("errorCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+  errorTextbox.setText(" ");
+  errorWindow.setVisible(false);
+}
 
 // Checks if inputed temperature values are in range, if not uses default
 public void tempTextBox_change(GTextField source, GEvent event) {
@@ -653,6 +687,7 @@ public void createGUI(){
   connectBtn.addEventHandler(this, "connectBtn_click");
 
     //Start Button
+
   startSliceBtn = new GButton(this, 1160, 620, 100, 40);
   startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   startSliceBtn.setText("Start");
@@ -772,6 +807,25 @@ public void createGUI(){
   logCloseBtn.setText("Close");
   logCloseBtn.addEventHandler(this, "logCloseBtn_click");
   logWindow.loop();
+  
+  //Error Window
+  errorWindow = GWindow.getWindow(this, "ERROR", 0, 0, 500, 220, JAVA2D);
+  errorWindow.noLoop();
+  errorWindow.addDrawHandler(this, "errorWin_draw");
+  errorHeadingLabel = new GLabel(errorWindow, 10, 10, 480, 40);  
+  errorHeadingLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  errorHeadingLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  errorHeadingLabel.setText("ERROR");
+  errorHeadingLabel.setOpaque(false);
+  errorTextbox = new GTextField(errorWindow, 10, 50, 480, 100, G4P.SCROLLBARS_VERTICAL_ONLY); 
+  errorTextbox.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  errorTextbox.setOpaque(true);
+  //Close Error Window
+  errorCloseBtn = new GButton(errorWindow, 440, 170, 50, 30);
+  errorCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  errorCloseBtn.setText("OK");
+  errorCloseBtn.addEventHandler(this, "errorCloseBtn_click");
+  errorWindow.loop();
 }
 
                                        //Variables:
@@ -838,6 +892,7 @@ GButton homingBtn;
 
 GButton connectBtn;
 
+//Log Window
 GButton consoleBtn;
 GWindow logWindow;
 GTextField logTextBox;
@@ -869,7 +924,19 @@ GButton warmupcancelBtn;
 Integer headTemp;
 Integer bedTemp;
 
+//Error Popup
+GWindow errorWindow;
+GLabel errorHeadingLabel;
+GTextField errorTextbox;
+GButton errorCloseBtn;
 
 //Font Settings
-String Font_Type = "Sans-Serif";
+String Font_Type = "Sans-Serif"; 
 Integer Font_Size = 18;
+
+//Printing Codes for Preheating
+String [] homingCode = {"G48"};
+String [] heatingbedCode = {"M140 S0"};
+String [] heatingbedwaitCode = {"M190 S0"};
+String [] heatingheadCode = {"M104 S0"};
+String [] heatingheadwaitCode = {"M109 S0"};
