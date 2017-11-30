@@ -311,10 +311,26 @@ public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:6
 //Warmup Confirm Button Click
 public void warmupconfirmBtn_click(GButton source, GEvent event) { 
   println("warmupconfirmBtn - GButton >> GEvent." + event + " @ " + millis());
+  //Set Head Temp
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
+  //Set Heating Head Code
+  heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
+  println("Heating Head Code set to " + heatingheadCode[0]);
+  //Set Heating Head + Waiting Code
+  heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
+  println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  
+  //Set Bed Temp
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   println("Bed Temperature = " + bedTemp);
+  //Set Heating Bed Code
+  heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
+  println("Heating Bed Code set to " + heatingbedCode[0]);
+  //Set Heating Bed + Waiting Code
+  heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
+  println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  
   warmupWindow.setVisible(false);
 }
 //Warmup Cancel Button Click
@@ -920,3 +936,10 @@ GButton errorCloseBtn;
 //Font Settings
 String Font_Type = "Sans-Serif"; 
 Integer Font_Size = 18;
+
+//Printing Codes for Preheating
+String [] homingCode = {"G48"};
+String [] heatingbedCode = {"M140 S0"};
+String [] heatingbedwaitCode = {"M190 S0"};
+String [] heatingheadCode = {"M104 S0"};
+String [] heatingheadwaitCode = {"M109 S0"};
