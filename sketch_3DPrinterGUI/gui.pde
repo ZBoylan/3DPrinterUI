@@ -464,6 +464,7 @@ public void errorCloseBtn_click(GButton source, GEvent event) {
   println("errorCloseBtn - GButton >> GEvent." + event + " @ " + millis());
   errorTextbox.setText(" ");
   errorWindow.setVisible(false);
+}
 
 // Checks if inputed temperature values are in range, if not uses default
 public void tempTextBox_change(GTextField source, GEvent event) {
@@ -939,4 +940,3 @@ String [] heatingbedCode = {"M140 S0"};
 String [] heatingbedwaitCode = {"M190 S0"};
 String [] heatingheadCode = {"M104 S0"};
 String [] heatingheadwaitCode = {"M109 S0"};
-
