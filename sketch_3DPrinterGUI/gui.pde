@@ -38,6 +38,10 @@ import java.io.File;
 import processing.serial.*;
 import java.util.Arrays;
 
+//default max & min temptures for printer head and bed
+int TEMP_MAX = 400;
+int TEMP_MIN = 0;
+
 DeviceController devControl;
 ArrayList<String> gcode;
 
@@ -428,9 +432,17 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   }
 } //_CODE_:confirmBtn:275116:
 
-
-
-
+// Checks if inputed temperature values are in range, if not uses default
+public void tempTextBox_change(GTextField source, GEvent event) {
+    println(event);
+    if (event == GEvent.LOST_FOCUS) {               //cursor out event
+        int tempValue = int(source.getText());      //convert string to int
+        if (tempValue < 0)
+            source.setText(str(TEMP_MIN));
+        else if (tempValue > TEMP_MAX)
+            source.setText(str(TEMP_MAX));
+    }
+}
 
 
                                       // Create all the GUI controls.
@@ -726,7 +738,7 @@ public void createGUI(){
   headTempLabel.setOpaque(false);
   headTempTextBox = new GTextField(warmupWindow, 180, 10, 70, 30, G4P.SCROLLBARS_NONE);
   headTempTextBox.setOpaque(true);
-  headTempTextBox.addEventHandler(this, "headTempTextBox_change");
+  headTempTextBox.addEventHandler(this, "tempTextBox_change");
   //Bed Temp
   bedTempLabel = new GLabel(warmupWindow, 10, 100, 200, 30);
   bedTempLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
@@ -735,7 +747,7 @@ public void createGUI(){
   bedTempLabel.setOpaque(false);
   bedTempTextBox = new GTextField(warmupWindow, 180, 100, 70, 30, G4P.SCROLLBARS_NONE);
   bedTempTextBox.setOpaque(true);
-  bedTempTextBox.addEventHandler(this, "bedTempTextBox_change");
+  bedTempTextBox.addEventHandler(this, "tempTextBox_change");
   //Confirm
   warmupconfirmBtn = new GButton(warmupWindow, 10, 200, 80, 30);
   warmupconfirmBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
