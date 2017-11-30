@@ -211,48 +211,27 @@ public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infill
   println("infill = " + infill);
 } //_CODE_:infillSlider:696453:
 
+// checks for constraints to values stored in xTextBox, yTextBox, zTextBox
+// if out of range, uses a default min/max value
+public void areaTextfield_change(GTextField source, GEvent event) {
+    if (event == GEvent.LOST_FOCUS) {
+        int area = Integer.parseInt(source.getText());  // get string from txtbox convert to int
+        if (area < 1)
+            source.setText("1");
+        if (area > 200)
+            source.setText("200");
+        area = Integer.parseInt(source.getText());   //get new value
+        // find which control sent the event
+        if (source == xTextBox)
+            xArea = area;
+        else if (source == yTextBox)
+            yArea = area;
+        else if (source == zTextBox)
+            zArea = area;
 
-
-//X Textfield Change
-public void xAreaTextfield_change(GTextField source, GEvent event) { //_CODE_:xTextBox:544724:
-  xArea = Integer.parseInt(xTextBox.getText());
-
-  // This is throwing a null pointer exception and crashing atm
-  if (xArea < 1)
-    xTextBox.setText("1");
-  if (xArea > 200)
-    xTextBox.setText("200");
-
-  println("X Area = " + xArea);
-} //_CODE_:xTextBox:544724:
-
-//Y TextField Change
-public void yAreaTextfield_change1(GTextField source, GEvent event) { //_CODE_:yTextBox:577150:
-  yArea = Integer.parseInt(yTextBox.getText());
-
-  // This is throwing a null pointer exception and crashing atm
-  if (yArea < 1)
-    yTextBox.setText("1");
-  if (yArea > 200)
-    yTextBox.setText("200");
-
-  println("Y Area = " + yArea);
-} //_CODE_:yTextBox:577150:
-
-//Z TextField Change
-public void zAreaTextfield_change1(GTextField source, GEvent event) { //_CODE_:zTextBox:384490:
-  zArea = Integer.parseInt(zTextBox.getText());
-
-  // This is throwing a null pointer exception and crashing atm
-  if (zArea < 1)
-    zTextBox.setText("1");
-  if (zArea > 200)
-    zTextBox.setText("200");
-
-  println("Z Area = " + zArea);
-} //_CODE_:zTextBox:384490:
-
-
+        println("x: " + xArea + ", y: " + yArea + ", z: " + zArea);
+    }
+}
 
 //Quality Low Clicked
 public void qualityLowRad_clicked(GOption source, GEvent event) { //_CODE_:qualityLowRad:596469:
@@ -465,6 +444,7 @@ public void tempTextBox_change(GTextField source, GEvent event) {
     }
 }
 
+
                                       // Create all the GUI controls.
 public void createGUI(){
   G4P.messagesEnabled(false);
@@ -540,7 +520,7 @@ public void createGUI(){
   //X TextBox
   xTextBox = new GTextField(this, 1240, 235, 70, 30, G4P.SCROLLBARS_NONE);
   xTextBox.setOpaque(true);
-  xTextBox.addEventHandler(this, "xAreaTextfield_change");
+  xTextBox.addEventHandler(this, "areaTextfield_change");
 
   //Y Label
   yLabel = new GLabel(this, 1155, 290, 80, 20);
@@ -551,7 +531,7 @@ public void createGUI(){
   //Y TextBox
   yTextBox = new GTextField(this, 1240, 285, 70, 30, G4P.SCROLLBARS_NONE);
   yTextBox.setOpaque(true);
-  yTextBox.addEventHandler(this, "yAreaTextfield_change1");
+  yTextBox.addEventHandler(this, "areaTextfield_change");
 
   //Z Label
   zLabel = new GLabel(this, 1155, 340, 80, 20);
@@ -562,7 +542,7 @@ public void createGUI(){
   //Z TextBox
   zTextBox = new GTextField(this, 1240, 335, 70, 30, G4P.SCROLLBARS_NONE);
   zTextBox.setOpaque(true);
-  zTextBox.addEventHandler(this, "zAreaTextfield_change1");
+  zTextBox.addEventHandler(this, "areaTextfield_change");
 
   //Quality Label
   qualityLabel = new GLabel(this, 1390, 240, 80, 20);
