@@ -1,13 +1,13 @@
 /*
 GUI for 3D printer
 Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
-Usage: Before running the gui.pde, ensure that sketch_3DPrinterGUI is within the package/folder 
+Usage: Before running the gui.pde, ensure that sketch_3DPrinterGUI is within the package/folder
 of this .pde file.
 Required Processing Libraries needed before running gui.pde:
   - ControlP5
   - G4P
   - ToxicLibs
-  
+
 To start GUI, simply press the "Play" button on Processing 3.3.6 or run gui.pde by double clicking
 it.
 This version is a first prototype so not all features are present/functional but are accurate.
@@ -37,6 +37,10 @@ import java.io.File;
 
 import processing.serial.*;
 import java.util.Arrays;
+
+//default max & min temptures for printer head and bed
+int TEMP_MAX = 400;
+int TEMP_MIN = 0;
 
 DeviceController devControl;
 ArrayList<String> gcode;
@@ -155,7 +159,7 @@ void modelScalingTest()
     }
 */
                                         //Event Handlers
-                                        
+
 //Choose File Button Click
 public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
@@ -171,7 +175,7 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
 
 //Serial Devices DropList Click
 public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:serialDevices:306859:
-  println("serialDevices - GDropList >> GEvent." + event + " @ " + millis()); 
+  println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
   port = source.getSelectedText();
   println("Port = " + port);
 } //_CODE_:serialDevices:306859:
@@ -179,10 +183,10 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
 
 
 //Baud Rate TextBox Change
-public void baudRateTextBox_change(GTextField source, GEvent event) { 
+public void baudRateTextBox_change(GTextField source, GEvent event) {
   baudRate = Integer.parseInt(baudRateTextBox.getText());
   println("baudRate = " + baudRate);
-} 
+}
 
 
 
@@ -271,13 +275,13 @@ public void qualityHighRad_clicked(GOption source, GEvent event) { //_CODE_:qual
 
 
 //Filament 1.75 Clicked
-public void filament175_clicked(GOption source, GEvent event) { 
+public void filament175_clicked(GOption source, GEvent event) {
   filament = 1.75;
   println("filament  = " + filament);
-} 
+}
 
 //Filament 3.00 Clicked
-public void filament3_clicked(GOption source, GEvent event) { 
+public void filament3_clicked(GOption source, GEvent event) {
   filament = 3.00;
   println("filament  = " + filament);
 }
@@ -306,11 +310,11 @@ public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:6
   warmupWindow.setVisible(true);
 } //_CODE_:warmUpBtn:690847:
 //Warmup Window
-//synchronized public void warmupWin_draw(PApplet appc, GWinData data) { 
+//synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
   //appc.background(230);
-//} 
+//}
 //Warmup Confirm Button Click
-public void warmupconfirmBtn_click(GButton source, GEvent event) { 
+public void warmupconfirmBtn_click(GButton source, GEvent event) {
   println("warmupconfirmBtn - GButton >> GEvent." + event + " @ " + millis());
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
@@ -319,17 +323,17 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   warmupWindow.setVisible(false);
 }
 //Warmup Cancel Button Click
-public void warmupcancelBtn_click(GButton source, GEvent event) { 
+public void warmupcancelBtn_click(GButton source, GEvent event) {
   println("warmupcancelBtn - GButton >> GEvent." + event + " @ " + millis());
   warmupWindow.setVisible(false);
 }
 
-synchronized public void warmupWin_draw(PApplet appc, GWinData data) { 
+synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
   appc.background(230);
 }
 
 //Warmup Cancel Button Click
-public void logCloseBtn_click(GButton source, GEvent event) { 
+public void logCloseBtn_click(GButton source, GEvent event) {
   println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
   logWindow.setVisible(false);
 }
@@ -362,7 +366,7 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
 //Pause Button Click
 public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
   println("Pause / Resume button pressed");
-  
+
   if (pauseSliceBtn.getText() == "Pause"){
     devControl.pauseJob();
     pauseSliceBtn.setText("Resume");
@@ -449,10 +453,17 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   }
 } //_CODE_:confirmBtn:275116:
 
-
-
- 
-
+// Checks if inputed temperature values are in range, if not uses default
+public void tempTextBox_change(GTextField source, GEvent event) {
+    println(event);
+    if (event == GEvent.LOST_FOCUS) {               //cursor out event
+        int tempValue = int(source.getText());      //convert string to int
+        if (tempValue < 0)
+            source.setText(str(TEMP_MIN));
+        else if (tempValue > TEMP_MAX)
+            source.setText(str(TEMP_MAX));
+    }
+}
 
                                       // Create all the GUI controls.
 public void createGUI(){
@@ -460,7 +471,7 @@ public void createGUI(){
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
   surface.setTitle("Sketch Window");
-  
+
   //Choose File Button
   chooseFileBtn = new GButton(this, 1160, 30, 100, 40);
   chooseFileBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
@@ -472,7 +483,7 @@ public void createGUI(){
   currentFile.setFont(new java.awt.Font("Monospaced", Font.ITALIC, 14));
   currentFile.setText("No File Selected...");
   currentFile.setOpaque(false);
-  
+
   //Serial Devices Label
   serialDevicesLabel = new GLabel(this, 1160, 60, 200, 80);
   serialDevicesLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
@@ -484,7 +495,7 @@ public void createGUI(){
   String[] deviceList = {"    ", "1111","2222","3333"};
   serialDevices.setItems(deviceList, 0);
   serialDevices.addEventHandler(this, "serialDevices_click1");
-  
+
   //Baud Rate Label
   baudRateLabel = new GLabel(this, 1160, 120, 200, 50);
   baudRateLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
@@ -495,7 +506,7 @@ public void createGUI(){
   baudRateTextBox = new GTextField(this, 1270, 125, 70, 30, G4P.SCROLLBARS_NONE);
   baudRateTextBox.setOpaque(true);
   baudRateTextBox.addEventHandler(this, "baudRateTextBox_change");
-  
+
   //Print When Ready CheckBox
   printWhenReadyBox = new GCheckbox(this, 1160, 170, 200, 50);
   printWhenReadyBox.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
@@ -503,7 +514,7 @@ public void createGUI(){
   printWhenReadyBox.setText("Print When Ready");
   printWhenReadyBox.setOpaque(false);
   printWhenReadyBox.addEventHandler(this, "printWhenReadyBox_clicked");
-  
+
   //Infill Label
   infillLabel = new GLabel(this, 1390, 150, 80, 20);
   infillLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
@@ -519,7 +530,7 @@ public void createGUI(){
   infillSlider.setNumberFormat(G4P.DECIMAL, 0);
   infillSlider.setOpaque(false);
   infillSlider.addEventHandler(this, "qualitySlider_change");
-  
+
   //X Label
   xLabel = new GLabel(this, 1155, 240, 80, 20);
   xLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
@@ -530,7 +541,7 @@ public void createGUI(){
   xTextBox = new GTextField(this, 1240, 235, 70, 30, G4P.SCROLLBARS_NONE);
   xTextBox.setOpaque(true);
   xTextBox.addEventHandler(this, "xAreaTextfield_change");
-  
+
   //Y Label
   yLabel = new GLabel(this, 1155, 290, 80, 20);
   yLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
@@ -541,7 +552,7 @@ public void createGUI(){
   yTextBox = new GTextField(this, 1240, 285, 70, 30, G4P.SCROLLBARS_NONE);
   yTextBox.setOpaque(true);
   yTextBox.addEventHandler(this, "yAreaTextfield_change1");
-  
+
   //Z Label
   zLabel = new GLabel(this, 1155, 340, 80, 20);
   zLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
@@ -614,7 +625,7 @@ public void createGUI(){
   filamentGroup.addControl(filament175);
   filament175.setSelected(true);
   filamentGroup.addControl(filament3);
-  
+
   //Nozzle Label
   nozzleLabel = new GLabel(this, 1135, 440, 200, 20);
   nozzleLabel.setTextAlign(GAlign.CENTER, GAlign.LEFT);
@@ -648,45 +659,45 @@ public void createGUI(){
   warmUpBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   warmUpBtn.setText("Warm Up Printer");
   warmUpBtn.addEventHandler(this, "warmUpBtn_click");
-  
+
   //Homing Button
   homingBtn = new GButton(this, 1280, 550, 100, 50);
   homingBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   homingBtn.setText("Homing");
   homingBtn.addEventHandler(this, "homingBtn_click");
-  
+
   //Connect Button
   connectBtn = new GButton(this, 1400, 550, 100, 50);
   connectBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   connectBtn.setText("Connect to Printer");
   connectBtn.addEventHandler(this, "connectBtn_click");
-  
+
     //Start Button
   startSliceBtn = new GButton(this, 1160, 620, 100, 40);
   startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   startSliceBtn.setText("Start");
   startSliceBtn.addEventHandler(this, "startSliceBtn_click");
-  
+
   //Pause Button
   pauseSliceBtn = new GButton(this, 1280, 620, 100, 40);
   pauseSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   pauseSliceBtn.setText("Pause");
   pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
-  
+
   //Cancel Button
   cancelPrintBtn = new GButton(this, 1400, 620, 100, 40);
   cancelPrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   cancelPrintBtn.setText("Cancel");
   cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
-  
+
   //Console Button
   consoleBtn = new GButton(this, 1400, 700, 100, 40);
   consoleBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   consoleBtn.setText("Console");
-  consoleBtn.addEventHandler(this, "consoleBtn_click"); 
-  
-  
-  
+  consoleBtn.addEventHandler(this, "consoleBtn_click");
+
+
+
   //Status Label
   statusLabel = new GLabel(this, 1160, 800, 230, 30);
   statusLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
@@ -711,7 +722,7 @@ public void createGUI(){
   downArrowbtn = new GButton(this, 1280, 750, 40, 40);
   downArrowbtn.setIcon("ArrowDown.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
-  
+
   //Choose File Window
   inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
   inputWindow.noLoop();
@@ -734,7 +745,7 @@ public void createGUI(){
   confirmBtn.addEventHandler(this, "confirmBtn_click");
   inputWindow.loop();
   inputWindow.setVisible(false);
-  
+
   //Warm Up Settings Window
   warmupWindow = GWindow.getWindow(this, "Warm Up Settings", 100, 100, 400, 250, JAVA2D);
   warmupWindow.noLoop();
@@ -747,7 +758,7 @@ public void createGUI(){
   headTempLabel.setOpaque(false);
   headTempTextBox = new GTextField(warmupWindow, 180, 10, 70, 30, G4P.SCROLLBARS_NONE);
   headTempTextBox.setOpaque(true);
-  headTempTextBox.addEventHandler(this, "headTempTextBox_change");
+  headTempTextBox.addEventHandler(this, "tempTextBox_change");
   //Bed Temp
   bedTempLabel = new GLabel(warmupWindow, 10, 100, 200, 30);
   bedTempLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
@@ -756,7 +767,7 @@ public void createGUI(){
   bedTempLabel.setOpaque(false);
   bedTempTextBox = new GTextField(warmupWindow, 180, 100, 70, 30, G4P.SCROLLBARS_NONE);
   bedTempTextBox.setOpaque(true);
-  bedTempTextBox.addEventHandler(this, "bedTempTextBox_change");
+  bedTempTextBox.addEventHandler(this, "tempTextBox_change");
   //Confirm
   warmupconfirmBtn = new GButton(warmupWindow, 10, 200, 80, 30);
   warmupconfirmBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
@@ -768,7 +779,7 @@ public void createGUI(){
   warmupcancelBtn.setText("Cancel");
   warmupcancelBtn.addEventHandler(this, "warmupcancelBtn_click");
   warmupWindow.loop();
-  
+
   //Log Window
   logWindow = GWindow.getWindow(this, "3D Printer Log", 0, 0, 300, 350, JAVA2D);
   logWindow.noLoop();
@@ -867,7 +878,7 @@ GTextArea gcodeTextBox;
 GButton cancelInputBtn;
 GButton confirmBtn;
 
-//Warm Up Settings Window 
+//Warm Up Settings Window
 GWindow warmupWindow;
 GLabel headTempLabel;
 GTextField headTempTextBox;
@@ -880,5 +891,5 @@ Integer bedTemp;
 
 
 //Font Settings
-String Font_Type = "Sans-Serif"; 
+String Font_Type = "Sans-Serif";
 Integer Font_Size = 18;
