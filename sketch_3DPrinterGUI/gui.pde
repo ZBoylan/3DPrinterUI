@@ -462,6 +462,7 @@ synchronized public void errorWin_draw(PApplet appc, GWinData data) { //_CODE_:i
 //Error Close Button Click
 public void errorCloseBtn_click(GButton source, GEvent event) { 
   println("errorCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+  errorTextbox.setText(" ");
   errorWindow.setVisible(false);
 }
 
@@ -795,19 +796,19 @@ public void createGUI(){
   logWindow.loop();
   
   //Error Window
-  errorWindow = GWindow.getWindow(this, "ERROR", 0, 0, 500, 170, JAVA2D);
+  errorWindow = GWindow.getWindow(this, "ERROR", 0, 0, 500, 220, JAVA2D);
   errorWindow.noLoop();
   errorWindow.addDrawHandler(this, "errorWin_draw");
-  errorHeadingLabel = new GLabel(errorWindow, 10, 10, 300, 40);  
+  errorHeadingLabel = new GLabel(errorWindow, 10, 10, 480, 40);  
   errorHeadingLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   errorHeadingLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   errorHeadingLabel.setText("ERROR");
   errorHeadingLabel.setOpaque(false);
-  errorTextbox = new GTextField(errorWindow, 10, 10, 480, 100, G4P.SCROLLBARS_VERTICAL_ONLY); 
+  errorTextbox = new GTextField(errorWindow, 10, 50, 480, 100, G4P.SCROLLBARS_VERTICAL_ONLY); 
   errorTextbox.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   errorTextbox.setOpaque(true);
   //Close Error Window
-  errorCloseBtn = new GButton(errorWindow, 440, 130, 50, 30);
+  errorCloseBtn = new GButton(errorWindow, 440, 170, 50, 30);
   errorCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   errorCloseBtn.setText("OK");
   errorCloseBtn.addEventHandler(this, "errorCloseBtn_click");
