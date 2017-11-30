@@ -55,7 +55,7 @@ Model test;
 int last;
 
 public void settings(){
-    size(1570,950, JAVA2D);    // must be P3D to render
+    size(1570,950, P3D);    // must be P3D to render
 }
 
 public void setup(){
@@ -63,6 +63,7 @@ public void setup(){
   inputWindow.setVisible(false);
   warmupWindow.setVisible(false);
   logWindow.setVisible(false);
+  errorWindow.setVisible(false);
 
   // Device controller test
   try {
@@ -305,10 +306,8 @@ public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:6
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   warmupWindow.setVisible(true);
 } //_CODE_:warmUpBtn:690847:
-//Warmup Window
-//synchronized public void warmupWin_draw(PApplet appc, GWinData data) { 
-  //appc.background(230);
-//} 
+
+
 //Warmup Confirm Button Click
 public void warmupconfirmBtn_click(GButton source, GEvent event) { 
   println("warmupconfirmBtn - GButton >> GEvent." + event + " @ " + millis());
@@ -328,7 +327,7 @@ synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
   appc.background(230);
 }
 
-//Warmup Cancel Button Click
+//Log Cancel Button Click
 public void logCloseBtn_click(GButton source, GEvent event) { 
   println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
   logWindow.setVisible(false);
@@ -425,6 +424,12 @@ public void searchFileBtn_click(GButton source, GEvent event) { //_CODE_:searchF
 
 public void fileSelected(File selection) {
   STLFile = selection.getAbsolutePath();
+  if (STLFile.indexOf("stl", STLFile.length() - 5) == -1 )
+  {
+    errorTextbox.setText("Incorrect file type chosen (non-STL file type)");
+    errorWindow.setVisible(true);
+    STLFile = "";
+  }
   fileTextBox.setText(STLFile);
 }
 
@@ -449,9 +454,16 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   }
 } //_CODE_:confirmBtn:275116:
 
+//Error Window
+synchronized public void errorWin_draw(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
+  appc.background(230);
+} //_CODE_:inputWindow:608766:
 
-
- 
+//Error Close Button Click
+public void errorCloseBtn_click(GButton source, GEvent event) { 
+  println("errorCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+  errorWindow.setVisible(false);
+}
 
 
                                       // Create all the GUI controls.
@@ -661,7 +673,7 @@ public void createGUI(){
   connectBtn.setText("Connect to Printer");
   connectBtn.addEventHandler(this, "connectBtn_click");
   
-    //Start Button
+  //Start Button
   startSliceBtn = new GButton(this, 1160, 620, 100, 40);
   startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   startSliceBtn.setText("Start");
@@ -781,6 +793,25 @@ public void createGUI(){
   logCloseBtn.setText("Close");
   logCloseBtn.addEventHandler(this, "logCloseBtn_click");
   logWindow.loop();
+  
+  //Error Window
+  errorWindow = GWindow.getWindow(this, "ERROR", 0, 0, 500, 170, JAVA2D);
+  errorWindow.noLoop();
+  errorWindow.addDrawHandler(this, "errorWin_draw");
+  errorHeadingLabel = new GLabel(errorWindow, 10, 10, 300, 40);  
+  errorHeadingLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  errorHeadingLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  errorHeadingLabel.setText("ERROR");
+  errorHeadingLabel.setOpaque(false);
+  errorTextbox = new GTextField(errorWindow, 10, 10, 480, 100, G4P.SCROLLBARS_VERTICAL_ONLY); 
+  errorTextbox.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  errorTextbox.setOpaque(true);
+  //Close Error Window
+  errorCloseBtn = new GButton(errorWindow, 440, 130, 50, 30);
+  errorCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  errorCloseBtn.setText("OK");
+  errorCloseBtn.addEventHandler(this, "errorCloseBtn_click");
+  errorWindow.loop();
 }
 
                                        //Variables:
@@ -847,6 +878,7 @@ GButton homingBtn;
 
 GButton connectBtn;
 
+//Log Window
 GButton consoleBtn;
 GWindow logWindow;
 GTextField logTextBox;
@@ -878,6 +910,11 @@ GButton warmupcancelBtn;
 Integer headTemp;
 Integer bedTemp;
 
+//Error Popup
+GWindow errorWindow;
+GLabel errorHeadingLabel;
+GTextField errorTextbox;
+GButton errorCloseBtn;
 
 //Font Settings
 String Font_Type = "Sans-Serif"; 
