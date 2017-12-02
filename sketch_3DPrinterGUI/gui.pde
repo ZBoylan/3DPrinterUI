@@ -85,12 +85,12 @@ public void draw(){
   line(1130, 0, 1130, 950);
   stroke(126);
   if (confirmedClicked){
-     rendering = createGraphics(250, 250, P3D);  //size of render
+     rendering = createGraphics(250, 250, P3D);  //size of render  // P3D
 
-    vis = new RenderControler(100, 100, 100);
-    vis.ResetCamera();
-    STLParser parser = new STLParser(STLFile);
-    ArrayList<Facet> data = parser.parseSTL();
+    //vis = new RenderControler(100, 100, 100);
+    //vis.ResetCamera();
+    //STLParser parser = new STLParser(STLFile);
+    //ArrayList<Facet> data = parser.parseSTL();
     /*test = new Model(data, .1, .1);
     test.Slice();      // Create gcode in Model object
     gcode = test.getGCode();   // assign gcode from Model object to gui.pde gcode variable - be used to start print job
@@ -164,6 +164,7 @@ void modelScalingTest()
 //Choose File Button Click
 public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Choose file button clicked");
   //Select New File
   STLFile = null;
   confirmedClicked = false;
@@ -178,7 +179,9 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
 public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:serialDevices:306859:
   println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
   port = source.getSelectedText();
+  
   println("Port = " + port);
+  logTextBox.appendText("Port = " + port);
 } //_CODE_:serialDevices:306859:
 
 
@@ -186,7 +189,9 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
 //Baud Rate TextBox Change
 public void baudRateTextBox_change(GTextField source, GEvent event) {
   baudRate = Integer.parseInt(baudRateTextBox.getText());
+  
   println("baudRate = " + baudRate);
+  logTextBox.appendText("baudRate = " + baudRate);
 }
 
 
@@ -199,6 +204,7 @@ public void printWhenReadyBox_clicked(GCheckbox source, GEvent event) { //_CODE_
       printWhenReady = true;
 
   println("printWhenReady is " + printWhenReady);
+  logTextBox.appendText("printWhenReady is " + printWhenReady);
 } //_CODE_:printWhenReadyBox:392431:
 
 
@@ -209,7 +215,9 @@ public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infill
   // Team wants value form 0.0 - 1.0 = divide by 100 if slider range is 0.0 - 100.0
   //infill = infillSlider.getValueF();   // round2 function will set number of decimals you want for infill
   infill = round2(infillSlider.getValueF(), 2);
+  
   println("infill = " + infill);
+  logTextBox.appendText("infill = " + infill);
 } //_CODE_:infillSlider:696453:
 
 // checks for constraints to values stored in xTextBox, yTextBox, zTextBox
@@ -231,6 +239,7 @@ public void areaTextfield_change(GTextField source, GEvent event) {
             zArea = area;
 
         println("x: " + xArea + ", y: " + yArea + ", z: " + zArea);
+        logTextBox.appendText("x: " + xArea + ", y: " + yArea + ", z: " + zArea);
     }
 }
 
@@ -238,18 +247,21 @@ public void areaTextfield_change(GTextField source, GEvent event) {
 public void qualityLowRad_clicked(GOption source, GEvent event) { //_CODE_:qualityLowRad:596469:
   quality = 0;
   println("quality set to low = " + quality);
+  logTextBox.appendText("quality set to low = " + quality);
 } //_CODE_:qualityLowRad:596469:
 
 //Quality Med Clicked
 public void qualityMedRad_clicked(GOption source, GEvent event) { //_CODE_:qualityMedRad:556993:
   quality = 1;
   println("quality set to medium = " + quality);
+  logTextBox.appendText("quality set to medium = " + quality);
 } //_CODE_:qualityMedRad:556993:
 
 //Quality High Clicked
 public void qualityHighRad_clicked(GOption source, GEvent event) { //_CODE_:qualityHighRad:770558:
   quality = 2;
   println("quality set to high = " + quality);
+  logTextBox.appendText("quality set to high = " + quality);
 } //_CODE_:qualityHighRad:770558:
 
 
@@ -258,12 +270,14 @@ public void qualityHighRad_clicked(GOption source, GEvent event) { //_CODE_:qual
 public void filament175_clicked(GOption source, GEvent event) {
   filament = 1.75;
   println("filament  = " + filament);
+  logTextBox.appendText("filament  = " + filament);
 }
 
 //Filament 3.00 Clicked
 public void filament3_clicked(GOption source, GEvent event) {
   filament = 3.00;
   println("filament  = " + filament);
+  logTextBox.appendText("filament  = " + filament);
 }
 
 
@@ -272,6 +286,7 @@ public void filament3_clicked(GOption source, GEvent event) {
 public void nozzleSlider_change(GSlider source, GEvent event) { //_CODE_:nozzleSlider:915112:
   nozzleDiameter = round2(nozzleSlider.getValueF(), 2);
   println("Nozzle diameter = " + nozzleDiameter);
+  logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
 } //_CODE_:nozzleSlider:915112:
 
 
@@ -280,6 +295,7 @@ public void nozzleSlider_change(GSlider source, GEvent event) { //_CODE_:nozzleS
 public void sliderLayerScale_change(GSlider source, GEvent event) { //_CODE_:layerScaleSlider:493757:
   layerScale = round2(layerScaleSlider.getValueF(), 2);
   println("Layer scale = " + layerScale);
+  logTextBox.appendText("Layer scale = " + layerScale);
 } //_CODE_:layercaleSlider:493757:
 
 
@@ -287,6 +303,7 @@ public void sliderLayerScale_change(GSlider source, GEvent event) { //_CODE_:lay
 //Warm Up Button Clicked
 public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:690847:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Warm up button clicked");
   warmupWindow.setVisible(true);
 } //_CODE_:warmUpBtn:690847:
 
@@ -296,28 +313,35 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   //Set Head Temp
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
+  logTextBox.appendText("Head Temperature = " + headTemp);
   //Set Heating Head Code
   heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
   println("Heating Head Code set to " + heatingheadCode[0]);
+  logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
   //Set Heating Head + Waiting Code
   heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
   println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
   
   //Set Bed Temp
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   println("Bed Temperature = " + bedTemp);
+  logTextBox.appendText("Bed Temperature = " + bedTemp);
   //Set Heating Bed Code
   heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
   println("Heating Bed Code set to " + heatingbedCode[0]);
+  logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
   //Set Heating Bed + Waiting Code
   heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
   println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
   
   warmupWindow.setVisible(false);
 }
 //Warmup Cancel Button Click
 public void warmupcancelBtn_click(GButton source, GEvent event) {
   println("warmupcancelBtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Warm up cancel button clicked");
   warmupWindow.setVisible(false);
 }
 
@@ -329,6 +353,7 @@ synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
 //Log Cancel Button Click
 public void logCloseBtn_click(GButton source, GEvent event) { 
   println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Close Console window button clicked");
   logWindow.setVisible(false);
 }
 
@@ -336,6 +361,7 @@ public void logCloseBtn_click(GButton source, GEvent event) {
 //Homing Button Clicked
 public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHeadBtn:245560:
   println("homingBtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Homing button clicked");
   ArrayList<String> homingGCode = new ArrayList<String>();
   homingGCode.add(homingCode[0]);
   devControl.startPrintJob(homingGCode);  //Need to pass ArrayList<String>
@@ -346,11 +372,13 @@ public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHea
 //Connect Button Clicked
 public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn:421460:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Connect to printer button clicked");
 } //_CODE_:connectBtn:421460:
 
 //Start Button Click
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
   println("Start Print button pressed");
+  logTextBox.appendText("Start Print button pressed");
   // Checking isJobRunning is done within startPrintJob(), so I think we never have to
   //if (devControl.isJobRunning() == false)
   //{
@@ -374,6 +402,7 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
 //Pause Button Click
 public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
   println("Pause / Resume button pressed");
+  logTextBox.appendText("Pause / Resume button pressed");
 
   if (pauseSliceBtn.getText() == "Pause"){
     devControl.pauseJob();
@@ -389,30 +418,36 @@ public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSl
 //Cancel Button Click
 public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
   println("Cancel Print button pressed");
+  logTextBox.appendText("Cancel Print button pressed");
   devControl.stopJob();
 } //_CODE_:cancelPrintBtn:781425:
 
 //Console Button Click
 public void consoleBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
-  println("Console Print button pressed");
+  println("Open Console window button pressed");
+  logTextBox.appendText("Open Console window button pressed");
   logWindow.setVisible(true);
 } //_CODE_:cancelPrintBtn:781425:
 
 //Arrow Button Clicked
 public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
   println("rightArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Right arrow button clicked");
 } //_CODE_:rightArrowbtn:338278:
 
 public void upArrowbtn_click1(GButton source, GEvent event) { //_CODE_:upArrowbtn:481853:
   println("upArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Up arrow button clicked");
 } //_CODE_:upArrowbtn:481853:
 
 public void leftArrowbtn_click1(GButton source, GEvent event) { //_CODE_:leftArrowbtn:840976:
   println("leftArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Left arrow button clicked");
 } //_CODE_:leftArrowbtn:840976:
 
 public void downArrowbtn_click1(GButton source, GEvent event) { //_CODE_:downArrowbtn:888588:
   println("downArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Down arrow button clicked");
 } //_CODE_:downArrowbtn:888588:
 
 synchronized public void logWin_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
@@ -427,11 +462,13 @@ synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:input
 //File TextBox Change
 public void fileTextBox_change(GTextField source, GEvent event) { //_CODE_:fileTextBox:274303:
   println("fileTextBox - GTextField >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("File TextBox Change");
 } //_CODE_:fileTextBox:274303:
 
 //Select File Button Click
 public void searchFileBtn_click(GButton source, GEvent event) { //_CODE_:searchFileBtn:687641:
   println("searchFileBtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Select File Button Clicked");
   selectInput("Select a STL file:", "fileSelected");
 } //_CODE_:searchFileBtn:687641:
 
@@ -441,6 +478,7 @@ public void fileSelected(File selection) {
   if ( !(fileExtension.toLowerCase()).equals("stl") )
   {
     errorTextbox.setText("Incorrect file type chosen (non-STL file type)");
+    logTextBox.appendText("Incorrect file type chosen (non-STL file type)");
     errorWindow.setVisible(true);
     STLFile = "";
   }
@@ -450,17 +488,20 @@ public void fileSelected(File selection) {
 //GCode TextBox Change
 public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcodeTextBox:726640:
   println("textarea1 - GTextArea >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("GCode TextBox Change");
 } //_CODE_:gcodeTextBox:726640:
 
 //Cancel Input Button Click
 public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Cancel Input File Button Clicked");
   inputWindow.setVisible(false);
 } //_CODE_:cancelInputBtn:629030:
 
 //Confirm Button Click
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
   println("confirmBtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Confirm Input File Button Clicked");
   if (fileTextBox.getText() == STLFile) {
     currentFile.setText(STLFile);
     inputWindow.setVisible(false);
@@ -477,6 +518,7 @@ synchronized public void errorWin_draw(PApplet appc, GWinData data) { //_CODE_:i
 //Error Close Button Click
 public void errorCloseBtn_click(GButton source, GEvent event) { 
   println("errorCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Error Window Close Button Clicked");
   errorTextbox.setText(" ");
   errorWindow.setVisible(false);
 }
@@ -499,7 +541,7 @@ public void createGUI(){
   G4P.messagesEnabled(false);
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
-  surface.setTitle("Sketch Window");
+  surface.setTitle("3D Printer");
 
   //Choose File Button
   chooseFileBtn = new GButton(this, 1160, 30, 100, 40);
@@ -811,10 +853,10 @@ public void createGUI(){
   warmupWindow.loop();
 
   //Log Window
-  logWindow = GWindow.getWindow(this, "3D Printer Log", 0, 0, 300, 350, JAVA2D);
+  logWindow = GWindow.getWindow(this, "Console Log", 0, 0, 300, 350, JAVA2D);
   logWindow.noLoop();
   logWindow.addDrawHandler(this, "logWin_draw1");
-  logTextBox = new GTextField(logWindow, 10, 10, 290, 290);  //should have scrollbar
+  logTextBox = new GTextArea(logWindow, 10, 10, 290, 290, G4P.SCROLLBARS_BOTH);  //should have scrollbar
   logTextBox.setOpaque(true);
   //Close logWindow button
   logCloseBtn = new GButton(logWindow, 10, 310, 80, 30);
@@ -849,6 +891,11 @@ GButton startSliceBtn;
 GButton pauseSliceBtn;
 
 GButton cancelPrintBtn;
+
+// These are on sketch_3DPrinterGUI
+//Integer xArea;
+//Integer yArea;
+//Integer zArea;
 
 //Choose File
 GButton chooseFileBtn;
@@ -910,7 +957,7 @@ GButton connectBtn;
 //Log Window
 GButton consoleBtn;
 GWindow logWindow;
-GTextField logTextBox;
+GTextArea logTextBox;
 GButton logCloseBtn;
 
 GLabel statusLabel;
