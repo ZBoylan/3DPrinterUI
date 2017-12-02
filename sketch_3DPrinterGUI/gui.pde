@@ -59,7 +59,7 @@ Model test;
 int last;
 
 public void settings(){
-    size(1570,950, P3D);    // must be P3D to render
+    size(1570, 950, P3D);    // must be P3D to render
 }
 
 public void setup(){
@@ -87,7 +87,7 @@ public void draw(){
   if (confirmedClicked){
      rendering = createGraphics(250, 250, P3D);  //size of render
 
-    vis = new RenderControler(100,100,100);
+    vis = new RenderControler(100, 100, 100);
     vis.ResetCamera();
     STLParser parser = new STLParser(STLFile);
     ArrayList<Facet> data = parser.parseSTL();
@@ -336,6 +336,9 @@ public void logCloseBtn_click(GButton source, GEvent event) {
 //Homing Button Clicked
 public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHeadBtn:245560:
   println("homingBtn - GButton >> GEvent." + event + " @ " + millis());
+  ArrayList<String> homingGCode = new ArrayList<String>();
+  homingGCode.add(homingCode[0]);
+  devControl.startPrintJob(homingGCode);  //Need to pass ArrayList<String>
 } //_CODE_:homingBtn:245560:
 
 
@@ -351,6 +354,17 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
   // Checking isJobRunning is done within startPrintJob(), so I think we never have to
   //if (devControl.isJobRunning() == false)
   //{
+    //Heat the bed
+    ArrayList<String> heatBedGCode = new ArrayList<String>();
+    heatBedGCode.add(heatingbedwaitCode[0]);
+    devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
+    
+    //Heat the head
+    ArrayList<String> heatHeadGCode = new ArrayList<String>();
+    heatHeadGCode.add(heatingheadwaitCode[0]);
+    devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
+    
+    //Now send 3D object gcode
     devControl.startPrintJob(gcode);
   //}
 }//_CODE_:startSliceBtn:735941:
