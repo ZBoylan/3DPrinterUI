@@ -423,7 +423,8 @@ public void searchFileBtn_click(GButton source, GEvent event) { //_CODE_:searchF
 
 public void fileSelected(File selection) {
   STLFile = selection.getAbsolutePath();
-  if (STLFile.indexOf(".stl", STLFile.length() - 4) == -1 || STLFile.indexOf(".STL", STLFile.length() - 4) == -1)
+  String fileExtension = STLFile.substring(STLFile.length() - 3);
+  if ( !(fileExtension.toLowerCase()).equals("stl") )
   {
     errorTextbox.setText("Incorrect file type chosen (non-STL file type)");
     errorWindow.setVisible(true);
