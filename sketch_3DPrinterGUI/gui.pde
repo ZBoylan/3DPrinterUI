@@ -50,6 +50,7 @@ PGraphics rendering;
 RenderControler vis;
 boolean realsed = true;
 boolean confirmedClicked = false;
+boolean printerOpOpen = false;
 
 int i=0;
 int j=0;
@@ -371,6 +372,7 @@ public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHea
 
 //Connect Button Clicked
 public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn:421460:
+  devControl.connectSerial(port, baudRate);
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
   logTextBox.appendText("Connect to printer button clicked");
 } //_CODE_:connectBtn:421460:
@@ -383,17 +385,22 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
   //if (devControl.isJobRunning() == false)
   //{
     //Heat the bed
-    ArrayList<String> heatBedGCode = new ArrayList<String>();
-    heatBedGCode.add(heatingbedwaitCode[0]);
-    devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
-    
-    //Heat the head
-    ArrayList<String> heatHeadGCode = new ArrayList<String>();
-    heatHeadGCode.add(heatingheadwaitCode[0]);
-    devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
-    
-    //Now send 3D object gcode
-    devControl.startPrintJob(gcode);
+    if(printerOpOpen){
+      startSliceBtn.setVisible(true);
+    }
+    else{
+      ArrayList<String> heatBedGCode = new ArrayList<String>();
+      heatBedGCode.add(heatingbedwaitCode[0]);
+      devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
+      
+      //Heat the head
+      ArrayList<String> heatHeadGCode = new ArrayList<String>();
+      heatHeadGCode.add(heatingheadwaitCode[0]);
+      devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
+      
+      //Now send 3D object gcode
+      devControl.startPrintJob(gcode);
+    }
   //}
 }//_CODE_:startSliceBtn:735941:
 
