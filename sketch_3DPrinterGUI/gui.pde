@@ -36,18 +36,19 @@ import java.awt.*;
 import java.io.File;
 
 import processing.serial.*;
+Serial myPort;
 import java.util.Arrays;
 
 //default max & min temptures for printer head and bed
 int TEMP_MAX = 400;
 int TEMP_MIN = 0;
 
-DeviceController devControl;
+DeviceController devControl = new DeviceController(this);
 ArrayList<String> gcode;
 
 // for render & slicing
 PGraphics rendering;
-RenderControler vis;
+//RenderControler vis;
 boolean realsed = true;
 boolean confirmedClicked = false;
 boolean printerOpOpen = false;
@@ -77,15 +78,15 @@ public void setup(){
   logWindow.setVisible(false);
   errorWindow.setVisible(false);
 
-  // Device controller test
-  try {
-     devControl = new DeviceController(true);
-  }
-  catch(RuntimeException e) {
-     e.printStackTrace();
-     println("Failed to open serial port, aborting");
-     return;
-  }
+  //// Device controller test
+  //try {
+  //   devControl = new DeviceController(true);
+  //}
+  //catch(RuntimeException e) {
+  //   e.printStackTrace();
+  //   println("Failed to open serial port, aborting");
+  //   return;
+  //}
 }
 
 public void draw(){
@@ -332,28 +333,28 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   //Set Head Temp
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
-  logTextBox.appendText("Head Temperature = " + headTemp);
+  //logTextBox.appendText("Head Temperature = " + headTemp);
   //Set Heating Head Code
   heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
   println("Heating Head Code set to " + heatingheadCode[0]);
-  logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
+  //logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
   //Set Heating Head + Waiting Code
   heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
   println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
-  logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  //logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
   
   //Set Bed Temp
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   println("Bed Temperature = " + bedTemp);
-  logTextBox.appendText("Bed Temperature = " + bedTemp);
+  //logTextBox.appendText("Bed Temperature = " + bedTemp);
   //Set Heating Bed Code
   heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
   println("Heating Bed Code set to " + heatingbedCode[0]);
-  logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
+  //logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
   //Set Heating Bed + Waiting Code
   heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
   println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
-  logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  //logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
   
   warmupWindow.setVisible(false);
 }
@@ -588,7 +589,8 @@ public void createGUI(){
   serialDevicesLabel.setOpaque(false);
   //Serial Devices DropList
   serialDevices = new GDropList(this, 1350, 85, 150, 100, 3);
-  String[] deviceList = {"    ", "1111","2222","3333"};
+  String[] deviceList = {Serial.list()[0], "1111","2222","3333"};
+  //println("Serial List: " + Serial.list()[0]);
   serialDevices.setItems(deviceList, 0);
   serialDevices.addEventHandler(this, "serialDevices_click1");
 
