@@ -1,12 +1,13 @@
 /*
 GUI for 3D printer
+
+Authors:
 Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
+
 Usage: Before running the gui.pde, ensure that sketch_3DPrinterGUI is within the package/folder
 of this .pde file.
-Required Processing Libraries needed before running gui.pde:
-  - ControlP5
+Required Processing Library needed before running gui.pde:
   - G4P
-  - ToxicLibs
 
 To start GUI, simply press the "Play" button on Processing 3.3.6 or run gui.pde by double clicking
 it.
@@ -14,29 +15,13 @@ This version is a first prototype so not all features are present/functional but
 All features are mattered to change in final implementation.
 */
 
-
-
-/* =========================================================
- * ====                   WARNING                        ===
- * =========================================================
- * The code in this tab has been generated from the GUI form
- * designer and care should be taken when editing this file.
- * Only add/edit code inside the event handlers i.e. only
- * use lines between the matching comment tags. e.g.
- void myBtnEvents(GButton button) { //_CODE_:button1:12356:
-     // It is safe to enter your event code here
- } //_CODE_:button1:12356:
- * Do not rename this tab!
- * =========================================================
- */
-
 import processing.core.PApplet;
 import g4p_controls.*;
 import java.awt.*;
 import java.io.File;
 
 import processing.serial.*;
-Serial myPort;
+//Serial myPort;
 import java.util.Arrays;
 
 //default max & min temptures for printer head and bed
@@ -51,14 +36,7 @@ PGraphics rendering;
 //RenderControler vis;
 boolean realsed = true;
 boolean confirmedClicked = false;
-boolean printerOpOpen = false;
-
-// get gcode by calling Slicer.createGCode(layers
-
-/*
-
-
-*/
+boolean printerOpOpen = false;  //why do we need this?
 
 int i=0;
 int j=0;
@@ -83,7 +61,8 @@ public void setup(){
   pauseSliceBtn.setVisible(false);
   cancelPrintBtn.setVisible(false);
   homingBtn.setVisible(false);
-  //// Device controller test
+  
+  //// To use Device Controller in test mode
   //try {
   //   devControl = new DeviceController(true);
   //}
@@ -98,84 +77,12 @@ public void draw(){
   background(230);
   line(1130, 0, 1130, 950);
   stroke(126);
-  if (confirmedClicked){
-     rendering = createGraphics(250, 250, P3D);  //size of render  // P3D
-
-    //long endTime = millis();
-    
-    //vis = new RenderControler(100, 100, 100);
-    //vis.ResetCamera();
-    //STLParser parser = new STLParser(STLFile);
-    //ArrayList<Facet> data = parser.parseSTL();
-    /*test = new Model(data, .1, .1);
-    test.Slice();      // Create gcode in Model object
-    gcode = test.getGCode();   // assign gcode from Model object to gui.pde gcode variable - be used to start print job
-    vis.Render(test, rendering);
-    image(rendering, 50 ,50);
-  */
-  //Testing render manipulation. WIP
-  /*modelTranslationTest();
-  modelScalingTest();
-  rotationTest();
-  */
-  }
+  //if (confirmedClicked){
+  //   rendering = createGraphics(250, 250, P3D);   // MOVE out of draw()
+     
+  //}
 }
-
-//prototype mouse events for render
-/*void modelTranslationTest()
-  {
-    if(mousePressed)
-    {
-      test.Translate(1,1);
-      vis.Render(test, rendering);
-      image(rendering, 50 ,50);
-    }
-    else
-      {
-      test.Translate(-1,-1);
-      vis.Render(test, rendering);
-      image(rendering, 50 ,50);
-      }
-  }
-
-void modelScalingTest()
-  {
-    if(mousePressed)
-    {
-      test.Scale(new PVector(1.01,1.01, 1.01));
-      vis.Render(test, rendering);
-      image(rendering, 50 ,50);
-    }
-    else
-      {
-      test.Scale(new PVector(.99, .99, .99));
-      vis.Render(test, rendering);
-      image(rendering, 50 ,50);
-      }
-  }
-
-  void rotationTest()
-    {
-      if(mousePressed)
-      {
-        POV temp = vis.getPOV();
-        temp.Rotate(1, 0);
-        vis.SetPOV(temp);
-        vis.Render(test, rendering);
-        image(rendering, 50 ,50);
-      }
-      else
-        {
-          POV temp = vis.getPOV();
-        temp.Rotate(0, 1);
-        vis.SetPOV(temp);
-        vis.Render(test, rendering);
-        image(rendering, 50 ,50);
-        }
-
-    }
-*/
-                                        //Event Handlers
+                           //Event Handlers
 
 //Choose File Button Click
 public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
@@ -194,6 +101,7 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
 //Serial Devices DropList Click
 public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:serialDevices:306859:
   println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
+  printArray(Serial.list());
   port = source.getSelectedText();
   
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
@@ -398,6 +306,8 @@ public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHea
   logTextBox.appendText("Homing button clicked");
   ArrayList<String> homingGCode = new ArrayList<String>();
   homingGCode.add(homingCode[0]);
+  
+  // Will likely crash if not already connected to printer or if not in test mode
   devControl.startPrintJob(homingGCode);  //Need to pass ArrayList<String>
 } //_CODE_:homingBtn:245560:
 
@@ -426,13 +336,17 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
   // Checking isJobRunning is done within startPrintJob(), so I think we never have to
   //if (devControl.isJobRunning() == false)
   //{
-    //Heat the bed
-    if(printerOpOpen){
+    
+    if(printerOpOpen){  // ?
       startSliceBtn.setVisible(true);
     }
     else{
+      
+      // Will likely crash if not already connected to printer or if not in test mode
+      
+      //Heat the bed
       ArrayList<String> heatBedGCode = new ArrayList<String>();
-      heatBedGCode.add(heatingbedwaitCode[0]);
+      heatBedGCode.add(heatingbedwaitCode[0]);  
       devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
       
       //Heat the head
@@ -559,13 +473,15 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
     confirmedClicked = true;
   }
 
+  //Slicing functions
   STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
   ArrayList<Facet> facets = parser.parseSTL();
   // Slice object; includes output for timing the slicing procedure.
-  //long startTime = millis();
   Slicer slice = new Slicer(facets, layerScale, 0); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
   ArrayList<Layer> layers = slice.sliceLayers();
-  gcode = slice.createGCode(layers);
+  gcode = slice.createGCode(layers);   //creates GCode to send to printer
+  
+  rendering = createGraphics(250, 250, P3D);  // Does this work?
 } //_CODE_:confirmBtn:275116:
 
 
@@ -624,6 +540,7 @@ public void createGUI(){
   serialDevices = new GDropList(this, 1350, 85, 150, 100, 3);
   String[] deviceList = {Serial.list()[0], "1111","2222","3333"};
   //println("Serial List: " + Serial.list()[0]);
+  // printArray(Serial.list());
   serialDevices.setItems(deviceList, 0);
   serialDevices.addEventHandler(this, "serialDevices_click1");
 
