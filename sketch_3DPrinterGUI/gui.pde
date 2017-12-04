@@ -52,6 +52,13 @@ boolean realsed = true;
 boolean confirmedClicked = false;
 boolean printerOpOpen = false;
 
+// get gcode by calling Slicer.createGCode(layers
+
+/*
+
+
+*/
+
 int i=0;
 int j=0;
 
@@ -88,6 +95,17 @@ public void draw(){
   if (confirmedClicked){
      rendering = createGraphics(250, 250, P3D);  //size of render  // P3D
 
+    STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
+
+    ArrayList<Facet> facets = parser.parseSTL();
+  
+    // Slice object; includes output for timing the slicing procedure.
+    //long startTime = millis();
+    Slicer slice = new Slicer(facets, layerScale, 0); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
+    ArrayList<Layer> layers = slice.sliceLayers();
+    gcode = slice.createGCode(layers);
+    //long endTime = millis();
+    
     //vis = new RenderControler(100, 100, 100);
     //vis.ResetCamera();
     //STLParser parser = new STLParser(STLFile);
