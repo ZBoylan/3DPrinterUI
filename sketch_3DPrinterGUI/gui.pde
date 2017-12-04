@@ -73,11 +73,16 @@ public void settings(){
 
 public void setup(){
   createGUI();
+  layerScale = round2(layerScaleSlider.getValueF(), 2);
+  port = serialDevices.getSelectedText();
   inputWindow.setVisible(false);
   warmupWindow.setVisible(false);
   logWindow.setVisible(false);
   errorWindow.setVisible(false);
-
+  startSliceBtn.setVisible(false);
+  pauseSliceBtn.setVisible(false);
+  cancelPrintBtn.setVisible(false);
+  homingBtn.setVisible(false);
   //// Device controller test
   //try {
   //   devControl = new DeviceController(true);
@@ -96,15 +101,6 @@ public void draw(){
   if (confirmedClicked){
      rendering = createGraphics(250, 250, P3D);  //size of render  // P3D
 
-    STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
-
-    ArrayList<Facet> facets = parser.parseSTL();
-  
-    // Slice object; includes output for timing the slicing procedure.
-    //long startTime = millis();
-    Slicer slice = new Slicer(facets, layerScale, 0); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
-    ArrayList<Layer> layers = slice.sliceLayers();
-    gcode = slice.createGCode(layers);
     //long endTime = millis();
     
     //vis = new RenderControler(100, 100, 100);
@@ -200,6 +196,13 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
   println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
   port = source.getSelectedText();
   
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
+  
   println("Port = " + port);
   logTextBox.appendText("Port = " + port);
 } //_CODE_:serialDevices:306859:
@@ -210,8 +213,14 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
 public void baudRateTextBox_change(GTextField source, GEvent event) {
   baudRate = Integer.parseInt(baudRateTextBox.getText());
   
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
+  
   println("baudRate = " + baudRate);
-  logTextBox.appendText("baudRate = " + baudRate);
 }
 
 
@@ -237,7 +246,7 @@ public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infill
   infill = round2(infillSlider.getValueF(), 2);
   
   println("infill = " + infill);
-  logTextBox.appendText("infill = " + infill);
+  
 } //_CODE_:infillSlider:696453:
 
 // checks for constraints to values stored in xTextBox, yTextBox, zTextBox
@@ -306,7 +315,6 @@ public void filament3_clicked(GOption source, GEvent event) {
 public void nozzleSlider_change(GSlider source, GEvent event) { //_CODE_:nozzleSlider:915112:
   nozzleDiameter = round2(nozzleSlider.getValueF(), 2);
   println("Nozzle diameter = " + nozzleDiameter);
-  logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
 } //_CODE_:nozzleSlider:915112:
 
 
@@ -315,7 +323,7 @@ public void nozzleSlider_change(GSlider source, GEvent event) { //_CODE_:nozzleS
 public void sliderLayerScale_change(GSlider source, GEvent event) { //_CODE_:layerScaleSlider:493757:
   layerScale = round2(layerScaleSlider.getValueF(), 2);
   println("Layer scale = " + layerScale);
-  logTextBox.appendText("Layer scale = " + layerScale);
+  //logTextBox.appendText("Layer scale = " + layerScale);
 } //_CODE_:layercaleSlider:493757:
 
 
@@ -333,28 +341,34 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   //Set Head Temp
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
-  //logTextBox.appendText("Head Temperature = " + headTemp);
+  
+  
+  
   //Set Heating Head Code
   heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
   println("Heating Head Code set to " + heatingheadCode[0]);
-  //logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
+  
   //Set Heating Head + Waiting Code
   heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
   println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
-  //logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  
   
   //Set Bed Temp
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   println("Bed Temperature = " + bedTemp);
-  //logTextBox.appendText("Bed Temperature = " + bedTemp);
   //Set Heating Bed Code
   heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
   println("Heating Bed Code set to " + heatingbedCode[0]);
-  //logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
   //Set Heating Bed + Waiting Code
   heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
   println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
-  //logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
   
   warmupWindow.setVisible(false);
 }
@@ -400,6 +414,15 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
   println("Start Print button pressed");
   logTextBox.appendText("Start Print button pressed");
+  logTextBox.appendText("baudRate = " + baudRate);
+  logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
+  logTextBox.appendText("Head Temperature = " + headTemp);
+  logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
+  logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  logTextBox.appendText("Bed Temperature = " + bedTemp);
+  logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
+  logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  logTextBox.appendText("infill = " + infill);
   // Checking isJobRunning is done within startPrintJob(), so I think we never have to
   //if (devControl.isJobRunning() == false)
   //{
@@ -420,6 +443,7 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
       //Now send 3D object gcode
       devControl.startPrintJob(gcode);
     }
+    
   //}
 }//_CODE_:startSliceBtn:735941:
 
@@ -528,11 +552,20 @@ public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
   println("confirmBtn - GButton >> GEvent." + event + " @ " + millis());
   logTextBox.appendText("Confirm Input File Button Clicked");
+  logTextBox.appendText("Layer scale = " + layerScale);
   if (fileTextBox.getText() == STLFile) {
     currentFile.setText(STLFile);
     inputWindow.setVisible(false);
     confirmedClicked = true;
   }
+
+  STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
+  ArrayList<Facet> facets = parser.parseSTL();
+  // Slice object; includes output for timing the slicing procedure.
+  //long startTime = millis();
+  Slicer slice = new Slicer(facets, layerScale, 0); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
+  ArrayList<Layer> layers = slice.sliceLayers();
+  gcode = slice.createGCode(layers);
 } //_CODE_:confirmBtn:275116:
 
 
@@ -747,7 +780,7 @@ public void createGUI(){
   //Layer Scale Slider
   layerScaleSlider = new GSlider(this, 1350, 485, 160, 40, 10.0);
   layerScaleSlider.setShowValue(true);
-  layerScaleSlider.setLimits(0.2, 0.01, 0.4);
+  layerScaleSlider.setLimits(0.2, 0.11, 0.29);
   layerScaleSlider.setNumberFormat(G4P.DECIMAL, 2);
   layerScaleSlider.setOpaque(false);
   layerScaleSlider.addEventHandler(this, "sliderLayerScale_change");
