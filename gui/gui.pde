@@ -4,8 +4,6 @@ GUI for 3D printer
 Authors:
 Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
 
-Usage: Before running the gui.pde, ensure that sketch_3DPrinterGUI is within the package/folder
-of this .pde file.
 Required Processing Library needed before running gui.pde:
   - G4P
 
@@ -21,17 +19,17 @@ import java.awt.*;
 import java.io.File;
 
 import processing.serial.*;
-//Serial myPort;
 import java.util.Arrays;
 
 //default max & min temptures for printer head and bed
 int TEMP_MAX = 400;
 int TEMP_MIN = 0;
 
+//Create Device Controller object
 DeviceController devControl = new DeviceController(this);
 ArrayList<String> gcode;
 
-// for render & slicing
+//For render & slicing
 PGraphics rendering;
 //RenderControler vis;
 boolean realsed = true;
@@ -82,7 +80,15 @@ public void draw(){
      
   //}
 }
-                           //Event Handlers
+
+ public static float round2(float number, int scale) {
+    int pow = 10;
+    for (int i = 1; i < scale; i++)
+        pow *= 10;
+    float tmp = number * pow;
+    return ( (float) ( (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) ) ) / pow;
+}      
+                         //Event Handlers
 
 //Choose File Button Click
 public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
@@ -236,6 +242,11 @@ public void sliderLayerScale_change(GSlider source, GEvent event) { //_CODE_:lay
 
 
 
+//Warm Up Window
+synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
+  appc.background(230);
+}
+
 //Warm Up Button Clicked
 public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:690847:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
@@ -249,9 +260,7 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   //Set Head Temp
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
-  
-  
-  
+ 
   //Set Heating Head Code
   heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
   println("Heating Head Code set to " + heatingheadCode[0]);
@@ -287,18 +296,6 @@ public void warmupcancelBtn_click(GButton source, GEvent event) {
   warmupWindow.setVisible(false);
 }
 
-synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
-  appc.background(230);
-}
-
-
-//Log Cancel Button Click
-public void logCloseBtn_click(GButton source, GEvent event) { 
-  println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Close Console window button clicked");
-  logWindow.setVisible(false);
-}
-
 
 //Homing Button Clicked
 public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHeadBtn:245560:
@@ -310,7 +307,6 @@ public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHea
   // Will likely crash if not already connected to printer or if not in test mode
   devControl.startPrintJob(homingGCode);  //Need to pass ArrayList<String>
 } //_CODE_:homingBtn:245560:
-
 
 
 //Connect Button Clicked
@@ -386,12 +382,26 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
   devControl.stopJob();
 } //_CODE_:cancelPrintBtn:781425:
 
+
 //Console Button Click
 public void consoleBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
   println("Open Console window button pressed");
   logTextBox.appendText("Open Console window button pressed");
   logWindow.setVisible(true);
 } //_CODE_:cancelPrintBtn:781425:
+
+
+//Log Window
+synchronized public void logWin_draw1(PApplet appc, GWinData data) { 
+  appc.background(230);
+} 
+
+//Log Cancel Button Click
+public void logCloseBtn_click(GButton source, GEvent event) { 
+  println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+  logTextBox.appendText("Close Console window button clicked");
+  logWindow.setVisible(false);
+}
 
 //Arrow Button Clicked
 public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
@@ -414,9 +424,7 @@ public void downArrowbtn_click1(GButton source, GEvent event) { //_CODE_:downArr
   logTextBox.appendText("Down arrow button clicked");
 } //_CODE_:downArrowbtn:888588:
 
-synchronized public void logWin_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
-  appc.background(230);
-} //_CODE_:inputWindow:608766:
+
 
 //Choose File Window
 synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
@@ -538,9 +546,9 @@ public void createGUI(){
   serialDevicesLabel.setOpaque(false);
   //Serial Devices DropList
   serialDevices = new GDropList(this, 1350, 85, 150, 100, 3);
-  String[] deviceList = {Serial.list()[0], "1111","2222","3333"};
+  String[] deviceList = {"   ", "1111", "2222","3333"}; //Serial.list()[0]
   //println("Serial List: " + Serial.list()[0]);
-  // printArray(Serial.list());
+  //printArray(Serial.list());
   serialDevices.setItems(deviceList, 0);
   serialDevices.addEventHandler(this, "serialDevices_click1");
 
@@ -709,13 +717,13 @@ public void createGUI(){
   warmUpBtn.addEventHandler(this, "warmUpBtn_click");
 
   //Homing Button
-  homingBtn = new GButton(this, 1280, 550, 100, 50);
+  homingBtn = new GButton(this, 1400, 550, 100, 50); 
   homingBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   homingBtn.setText("Homing");
   homingBtn.addEventHandler(this, "homingBtn_click");
 
   //Connect Button
-  connectBtn = new GButton(this, 1400, 550, 100, 50);
+  connectBtn = new GButton(this, 1280, 550, 100, 50);
   connectBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   connectBtn.setText("Connect to Printer");
   connectBtn.addEventHandler(this, "connectBtn_click");
@@ -863,16 +871,23 @@ public void createGUI(){
 }
 
                                        //Variables:
+                                       
+//Variables for 3D printer
+int quality;           //Low, Medium, High (0, 1, 2)
+boolean printWhenReady;
+float infill;          // infill % (0 - 1)
+String filePath;       
+int xArea;             //Range 1-200 for build area in x, y, z
+int yArea;
+int zArea;
+float nozzleDiameter;  //range 0-1
+float layerScale;       //range range 0 - 0.4
+
 GButton startSliceBtn;
 
 GButton pauseSliceBtn;
 
 GButton cancelPrintBtn;
-
-// These are on sketch_3DPrinterGUI
-//Integer xArea;
-//Integer yArea;
-//Integer zArea;
 
 //Choose File
 GButton chooseFileBtn;
