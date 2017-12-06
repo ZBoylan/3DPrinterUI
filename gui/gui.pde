@@ -51,6 +51,7 @@ public void setup(){
   createGUI();
   layerScale = round2(layerScaleSlider.getValueF(), 2);
   port = serialDevices.getSelectedText();
+  logTextBox.setTextEditEnabled(false);
   inputWindow.setVisible(false);
   warmupWindow.setVisible(false);
   logWindow.setVisible(false);
@@ -459,7 +460,6 @@ public void fileSelected(File selection) {
 //GCode TextBox Change
 public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcodeTextBox:726640:
   println("textarea1 - GTextArea >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("GCode TextBox Change");
 } //_CODE_:gcodeTextBox:726640:
 
 //Cancel Input Button Click
