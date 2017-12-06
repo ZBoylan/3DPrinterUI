@@ -60,6 +60,18 @@ public void setup(){
   pauseSliceBtn.setVisible(false);
   cancelPrintBtn.setVisible(false);
   homingBtn.setVisible(false);
+  bedTempTextBox.setText("50");
+  headTempTextBox.setText("208");
+  baudRateTextBox.setText("115200");
+  xTextBox.setText("200");
+  yTextBox.setText("200");
+  zTextBox.setText("150");
+  bedTemp = Integer.parseInt(bedTempTextBox.getText());
+  headTemp = Integer.parseInt(headTempTextBox.getText());
+  baudRate = Integer.parseInt(baudRateTextBox.getText());
+  xArea = Integer.parseInt(xTextBox.getText());
+  yArea = Integer.parseInt(yTextBox.getText());
+  zArea = Integer.parseInt(zTextBox.getText());
   
   //// To use Device Controller in test mode
   //try {
@@ -731,7 +743,7 @@ public void createGUI(){
   //Warm Up Button
   warmUpBtn = new GButton(this, 1160, 550, 100, 50);
   warmUpBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
-  warmUpBtn.setText("Warm Up Printer");
+  warmUpBtn.setText("Temperature Setting");
   warmUpBtn.addEventHandler(this, "warmUpBtn_click");
 
   //Homing Button
