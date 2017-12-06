@@ -312,8 +312,17 @@ public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHea
 
 //Connect Button Clicked
 public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn:421460:
-  devControl.connectSerial(port, baudRate);
+
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  
+  if (connectBtn.getText() == "Connect to Printer"){
+    devControl.connectSerial(port, baudRate);
+    connectBtn.setText("Disconnect");
+  }
+  else {
+    devControl.disconnectSerial();
+    connectBtn.setText("Connect to Printer");    // allows you to pause more than once per print job
+  }
   logTextBox.appendText("Connect to printer button clicked");
 } //_CODE_:connectBtn:421460:
 
