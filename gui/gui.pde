@@ -385,6 +385,8 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
   ArrayList<String> cooldownHomingCode = new ArrayList<String>();
   cooldownHomingCode.add(cooldownHoming[0]);  // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
   cooldownHomingCode.add(cooldownHoming[1]);
+  cooldownHomingCode.add(cooldownHoming[2]);
+  cooldownHomingCode.add(cooldownHoming[3]);
   
   devControl.startPrintJob(cooldownHomingCode);
 } //_CODE_:cancelPrintBtn:781425:
@@ -997,12 +999,12 @@ Integer Font_Size = 18;
 
 //Printing Codes for Preheating
 String [] homing = {"G28 \r\n"};  // normal homing 
-String [] cooldownHoming = {"G28 X0 \r\n", "G28 Y0 \r\n"}; // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
+String [] cooldownHoming = {"M104 S0 \r\n", "M140 S0 \r\n", "G28 X0 \r\n", "G28 Y0 \r\n"}; // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
 
 
 // This will be done by Slicing team now in their GCode generation
 //    *** We need to manually pass "Cooling" code if print job is cancelled/aborted -> M140 S0 and M104 S0
-//String [] heatingbedCode = {"M140 S0 "};
+//String [] heatingbedCode = {"M140 S0 \r\n"};
 //String [] heatingbedwaitCode = {"M190 S0"};
-//String [] heatingheadCode = {"M104 S0"};
+//String [] heatingheadCode = {"M104 S0 \r\n"};
 //String [] heatingheadwaitCode = {"M109 S0"};
