@@ -434,7 +434,6 @@ synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:input
 //File TextBox Change
 public void fileTextBox_change(GTextField source, GEvent event) { //_CODE_:fileTextBox:274303:
   println("fileTextBox - GTextField >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("File TextBox Change");
 } //_CODE_:fileTextBox:274303:
 
 //Select File Button Click
