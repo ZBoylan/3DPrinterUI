@@ -123,7 +123,7 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
   printArray(Serial.list());
   port = source.getSelectedText();
   
-  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
       startSliceBtn.setVisible(true);
       pauseSliceBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
@@ -140,7 +140,7 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
 public void baudRateTextBox_change(GTextField source, GEvent event) {
   baudRate = Integer.parseInt(baudRateTextBox.getText());
   
-  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
       startSliceBtn.setVisible(true);
       pauseSliceBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
@@ -293,7 +293,7 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   //heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
   //println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
   
-  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
       startSliceBtn.setVisible(true);
       pauseSliceBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
@@ -329,6 +329,12 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
   
   if (connectBtn.getText() == "Connect to Printer"){
     devControl.connectSerial(port, baudRate);
+    if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
     connectBtn.setText("Disconnect");
   }
   else {
