@@ -44,7 +44,7 @@ Model test;
 int last;
 
 public void settings(){
-    size(1570, 950, P3D);    // must be P3D to render
+    size(1570, 950);    // must be P3D to render
 }
 
 public void setup(){
@@ -263,23 +263,23 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   println("Head Temperature = " + headTemp);
  
   //Set Heating Head Code
-  heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
-  println("Heating Head Code set to " + heatingheadCode[0]);
+  //heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
+  //println("Heating Head Code set to " + heatingheadCode[0]);
   
   //Set Heating Head + Waiting Code
-  heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
-  println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  //heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
+  //println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
   
   
   //Set Bed Temp
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   println("Bed Temperature = " + bedTemp);
   //Set Heating Bed Code
-  heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
-  println("Heating Bed Code set to " + heatingbedCode[0]);
+  //heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
+  //println("Heating Bed Code set to " + heatingbedCode[0]);
   //Set Heating Bed + Waiting Code
-  heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
-  println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  //heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
+  //println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
   
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
       startSliceBtn.setVisible(true);
@@ -303,6 +303,8 @@ public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHea
   println("homingBtn - GButton >> GEvent." + event + " @ " + millis());
   logTextBox.appendText("Homing button clicked");
   
+  ArrayList<String> homingCode = new ArrayList<String>();
+  homingCode.add(homing[0]);   // Normal homing   G28: Move to Origin 
   // Will likely crash if not already connected to printer or if not in test mode
   devControl.startPrintJob(homingCode);  //Need to pass ArrayList<String>
 } //_CODE_:homingBtn:245560:
@@ -322,11 +324,11 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
   logTextBox.appendText("baudRate = " + baudRate);
   logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
   logTextBox.appendText("Head Temperature = " + headTemp);
-  logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
-  logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  //logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
+  //logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
   logTextBox.appendText("Bed Temperature = " + bedTemp);
-  logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
-  logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  //logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
+  //logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
   logTextBox.appendText("infill = " + infill);
   // Checking isJobRunning is done within startPrintJob(), so I think we never have to
   //if (devControl.isJobRunning() == false)
@@ -339,15 +341,15 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
       
       // Will likely crash if not already connected to printer or if not in test mode
       
-      //Heat the bed
-      ArrayList<String> heatBedGCode = new ArrayList<String>();
-      heatBedGCode.add(heatingbedwaitCode[0]);  
-      devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
+      ////Heat the bed
+      //ArrayList<String> heatBedGCode = new ArrayList<String>();
+      //heatBedGCode.add(heatingbedwaitCode[0]);  
+      //devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
       
-      //Heat the head
-      ArrayList<String> heatHeadGCode = new ArrayList<String>();
-      heatHeadGCode.add(heatingheadwaitCode[0]);
-      devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
+      ////Heat the head
+      //ArrayList<String> heatHeadGCode = new ArrayList<String>();
+      //heatHeadGCode.add(heatingheadwaitCode[0]);
+      //devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
       
       //Now send 3D object gcode
       devControl.startPrintJob(gcode);
@@ -379,6 +381,12 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
   println("Cancel Print button pressed");
   logTextBox.appendText("Cancel Print button pressed");
   devControl.stopJob();
+  
+  ArrayList<String> cooldownHomingCode = new ArrayList<String>();
+  cooldownHomingCode.add(cooldownHoming[0]);  // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
+  cooldownHomingCode.add(cooldownHoming[1]);
+  
+  devControl.startPrintJob(cooldownHomingCode);
 } //_CODE_:cancelPrintBtn:781425:
 
 
@@ -487,7 +495,7 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   ArrayList<Layer> layers = slice.sliceLayers();
   gcode = slice.createGCode(layers, headTemp, bedTemp, new PVector(xArea, yArea, zArea));   //creates GCode to send to printer
         // ***new version createGCode(ArrayList<Layer> layers, int extTemp, int bedTemp, PVector modelOffset)
-  rendering = createGraphics(250, 250, P3D);  // Does this work?
+  rendering = createGraphics(250, 250);  // Does this work?
 } //_CODE_:confirmBtn:275116:
 
 
@@ -988,12 +996,9 @@ String Font_Type = "Sans-Serif";
 Integer Font_Size = 18;
 
 //Printing Codes for Preheating
-ArrayList<String> homingCode = new ArrayList<String>();
-homingCode.add("G28 \r\n");  //Normal homing   G28: Move to Origin (Home)
-  
-ArrayList<String> cooldownHomingCode = new ArrayList<String>();
-cooldownHomingCode.add("G28 X0 \r\n");  // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
-cooldownHomingCode.add("G28 Y0 \r\n");
+String [] homing = {"G28 \r\n"};  // normal homing 
+String [] cooldownHoming = {"G28 X0 \r\n", "G28 Y0 \r\n"}; // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
+
 
 // This will be done by Slicing team now in their GCode generation
 //    *** We need to manually pass "Cooling" code if print job is cancelled/aborted -> M140 S0 and M104 S0
