@@ -302,11 +302,9 @@ public void warmupcancelBtn_click(GButton source, GEvent event) {
 public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHeadBtn:245560:
   println("homingBtn - GButton >> GEvent." + event + " @ " + millis());
   logTextBox.appendText("Homing button clicked");
-  ArrayList<String> homingGCode = new ArrayList<String>();
-  homingGCode.add(homingCode[0]);
   
   // Will likely crash if not already connected to printer or if not in test mode
-  devControl.startPrintJob(homingGCode);  //Need to pass ArrayList<String>
+  devControl.startPrintJob(homingCode);  //Need to pass ArrayList<String>
 } //_CODE_:homingBtn:245560:
 
 
@@ -480,14 +478,15 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
     confirmedClicked = true;
   }
 
-  //Slicing functions
+  //Slicing functions - move to a separate "slice" button
   STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
   ArrayList<Facet> facets = parser.parseSTL();
   // Slice object; includes output for timing the slicing procedure.
-  Slicer slice = new Slicer(facets, layerScale, 0); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
+  Slicer slice = new Slicer(facets, layerScale, infill); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
+        // ***new version - Slicer(ArrayList<Facet> facets, float layerHeight, float infill)
   ArrayList<Layer> layers = slice.sliceLayers();
-  gcode = slice.createGCode(layers);   //creates GCode to send to printer
-  
+  gcode = slice.createGCode(layers, headTemp, bedTemp, new PVector(xArea, yArea, zArea));   //creates GCode to send to printer
+        // ***new version createGCode(ArrayList<Layer> layers, int extTemp, int bedTemp, PVector modelOffset)
   rendering = createGraphics(250, 250, P3D);  // Does this work?
 } //_CODE_:confirmBtn:275116:
 
@@ -620,6 +619,7 @@ public void createGUI(){
   zTextBox.addEventHandler(this, "areaTextfield_change");
 
   //Quality Label
+  //    ***Don't need this low, medium, high quality radio group - quality will be set by layerScale (.1 - .3)
   qualityLabel = new GLabel(this, 1390, 240, 80, 20);
   qualityLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   qualityLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
@@ -704,7 +704,7 @@ public void createGUI(){
   //Layer Scale Slider
   layerScaleSlider = new GSlider(this, 1350, 485, 160, 40, 10.0);
   layerScaleSlider.setShowValue(true);
-  layerScaleSlider.setLimits(0.2, 0.11, 0.29);
+  layerScaleSlider.setLimits(0.2, 0.1, 0.3);
   layerScaleSlider.setNumberFormat(G4P.DECIMAL, 2);
   layerScaleSlider.setOpaque(false);
   layerScaleSlider.addEventHandler(this, "sliderLayerScale_change");
@@ -988,8 +988,16 @@ String Font_Type = "Sans-Serif";
 Integer Font_Size = 18;
 
 //Printing Codes for Preheating
-String [] homingCode = {"G48"};
-String [] heatingbedCode = {"M140 S0"};
-String [] heatingbedwaitCode = {"M190 S0"};
-String [] heatingheadCode = {"M104 S0"};
-String [] heatingheadwaitCode = {"M109 S0"};
+ArrayList<String> homingCode = new ArrayList<String>();
+homingCode.add("G28 \r\n");  //Normal homing   G28: Move to Origin (Home)
+  
+ArrayList<String> cooldownHomingCode = new ArrayList<String>();
+cooldownHomingCode.add("G28 X0 \r\n");  // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
+cooldownHomingCode.add("G28 Y0 \r\n");
+
+// This will be done by Slicing team now in their GCode generation
+//    *** We need to manually pass "Cooling" code if print job is cancelled/aborted -> M140 S0 and M104 S0
+//String [] heatingbedCode = {"M140 S0 "};
+//String [] heatingbedwaitCode = {"M190 S0"};
+//String [] heatingheadCode = {"M104 S0"};
+//String [] heatingheadwaitCode = {"M109 S0"};
