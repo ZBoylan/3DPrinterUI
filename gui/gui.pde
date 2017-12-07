@@ -122,13 +122,9 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
 //Serial Devices DropList Click
 public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:serialDevices:306859:
   println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
-  if (event == GEvent.PRESSED)
-  {
-    source.setItems(Serial.list(), 0);
-  }
   printArray(Serial.list());
   port = source.getSelectedText();
-  port = "/dev/pts/11";
+  //port = "/dev/pts/9";
 
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
       startSliceBtn.setVisible(true);
@@ -138,7 +134,7 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
   }
 
   println("Port = " + port);
-  logTextBox.appendText("Port = " + port);
+  //logTextBox.appendText("Port = " + port);
 } //_CODE_:serialDevices:306859:
 
 
@@ -380,9 +376,7 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
       //devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
 
       //Now send 3D object gcode
-      println("printing STARTED");
       devControl.startPrintJob(gcode);
-      println("printing ENDED");
     }
 
   //}
@@ -393,7 +387,7 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
 //Pause Button Click
 public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
   println("Pause / Resume button pressed");
-  logTextBox.appendText("Pause / Resume button pressed");
+  //logTextBox.appendText("Pause / Resume button pressed");
 
   if (pauseSliceBtn.getText() == "Pause"){
     devControl.pauseJob();
@@ -409,7 +403,7 @@ public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSl
 //Cancel Button Click
 public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
   println("Cancel Print button pressed");
-  logTextBox.appendText("Cancel Print button pressed");
+  //logTextBox.appendText("Cancel Print button pressed");
   devControl.stopJob();
 
   ArrayList<String> cooldownHomingCode = new ArrayList<String>();
@@ -425,7 +419,7 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 //Console Button Click
 public void consoleBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
   println("Open Console window button pressed");
-  logTextBox.appendText("Open Console window button pressed");
+  //logTextBox.appendText("Open Console window button pressed");
   logWindow.setVisible(true);
 } //_CODE_:cancelPrintBtn:781425:
 
@@ -510,8 +504,8 @@ public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 //Confirm Button Click
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
   println("confirmBtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Confirm Input File Button Clicked");
-  logTextBox.appendText("Layer scale = " + layerScale);
+  //logTextBox.appendText("Confirm Input File Button Clicked");
+  //logTextBox.appendText("Layer scale = " + layerScale);
   if (fileTextBox.getText() == STLFile) {
     currentFile.setText(STLFile);
     inputWindow.setVisible(false);
@@ -796,7 +790,7 @@ public void createGUI(){
 
 
   //Status Label
-  statusLabel = new GLabel(this, 1160, 800, 175, 90);
+  statusLabel = new GLabel(this, 1160, 800, 250, 100);
   statusLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   statusLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   statusLabel.setText("Status:");
@@ -1032,11 +1026,13 @@ Integer Font_Size = 18;
 String [] homing = {"G28 \r\n"};  // normal homing
 String [] cooldownHoming = {"M104 S0 \r\n", "M140 S0 \r\n", "G28 X0 \r\n", "G28 Y0 \r\n"}; // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
 
+// Status Label and state of the program
 
 private enum ConnectState        { DISCONNECTED, CONNECTED }
 private enum PrinterState        { IDLE, PRINTING, PAUSE}
 private enum SliceState          { NO_FILE, NOT_SLICED, SLICED}
 
+// default startup states
 private ConnectState stateConnect = ConnectState.DISCONNECTED;
 private PrinterState statePrinter = PrinterState.IDLE;
 private SliceState stateSlice = SliceState.NO_FILE;
@@ -1049,21 +1045,22 @@ private void updateState()
     else if (gcode != null && gcode.size() > 0)
         stateSlice = SliceState.SLICED;                        // stl is sliced
     else if (gcode != null && gcode.size() <= 0)
-        stateSlice = SliceState.NOT_SLICED;
+        stateSlice = SliceState.NOT_SLICED;                   // stl is not sliced
     // Connection State
     if (devControl.serialConnected())
-        stateConnect = ConnectState.CONNECTED;
+        stateConnect = ConnectState.CONNECTED;                // connected to the serial port
     else if (!devControl.serialConnected())
         stateConnect = ConnectState.DISCONNECTED;
     // Print State
-    if (devControl.isJobRunning())
-        statePrinter = PrinterState.PRINTING;
+    if (devControl.isJobRunning() && !devControl.pauseRequested() && devControl.serialConnected())    // maybe remove serialConnect
+        statePrinter = PrinterState.PRINTING;                 // activly printing
     else if (devControl.pauseRequested())
-        statePrinter = PrinterState.PAUSE;
-    else if (!devControl.isJobRunning() || !devControl.pauseRequested())
-        statePrinter = PrinterState.IDLE;
+        statePrinter = PrinterState.PAUSE;                    // printing paused
+    else if (!devControl.isJobRunning() || !devControl.pauseRequested() || devControl.serialConnected())  // maybe remove serialConnect
+        statePrinter = PrinterState.IDLE;                     // printer is idle
 }
 
+// Updates the status label with the corresponding state
 private void updateStatusLabel()
 {
     updateState();
@@ -1096,7 +1093,7 @@ private void updateStatusLabel()
                                     break;
         default:                    lblStatus[3] = "ERROR";
     }
-    statusLabel.setText("Printer: " + lblStatus[1] + " - STL: " + lblStatus[2] + " - Port: " + lblStatus[0]);
+    statusLabel.setText("Printer: " + lblStatus[1] + " \nSTL: " + lblStatus[2] + " \nDevice: " + lblStatus[0]);
 }
 
 
