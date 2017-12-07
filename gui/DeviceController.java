@@ -113,6 +113,12 @@ public class DeviceController extends Thread {
     }
   }
 
+  public boolean serialConnected() {
+    synchronized(this) {
+      return sdaConnected;
+    }
+  }
+
   public boolean isJobRunning() {
     synchronized(this) {
       return jobRunning;

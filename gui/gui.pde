@@ -322,10 +322,10 @@ public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHea
 } //_CODE_:homingBtn:245560:
 
 
-//Connect Button Clicked
+//Connect/disconnect to Printer Button Clicked
 public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn:421460:
 
-  println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  println("Connect/disconnect to printer button clicked");
   
   if (connectBtn.getText() == "Connect to Printer"){
     devControl.connectSerial(port, baudRate);
@@ -335,11 +335,17 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
   }
-    connectBtn.setText("Disconnect");
+    if (devControl.serialConnected())
+    {
+      connectBtn.setText("Disconnect");
+    }
   }
   else {
     devControl.disconnectSerial();
-    connectBtn.setText("Connect to Printer");    // allows you to pause more than once per print job
+    if (!devControl.serialConnected())
+    {
+      connectBtn.setText("Connect to Printer");  // allows you to pause more than once per print job
+    }
   }
   logTextBox.appendText("Connect to printer button clicked");
 } //_CODE_:connectBtn:421460:
