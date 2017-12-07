@@ -85,9 +85,11 @@ public void setup(){
 }
 
 public void draw(){
+  frameRate(10);
   background(230);
   line(1130, 0, 1130, 950);
   stroke(126);
+  updateStatusLabel();
   //if (confirmedClicked){
   //   rendering = createGraphics(250, 250, P3D);   // MOVE out of draw()
 
@@ -120,8 +122,13 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
 //Serial Devices DropList Click
 public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:serialDevices:306859:
   println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
+  if (event == GEvent.PRESSED)
+  {
+    source.setItems(Serial.list(), 0);
+  }
   printArray(Serial.list());
   port = source.getSelectedText();
+  port = "/dev/pts/11";
 
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
       startSliceBtn.setVisible(true);
@@ -341,16 +348,16 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
 //Start Button Click
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
   println("Start Print button pressed");
-  logTextBox.appendText("Start Print button pressed");
-  logTextBox.appendText("baudRate = " + baudRate);
-  logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
-  logTextBox.appendText("Head Temperature = " + headTemp);
+  //logTextBox.appendText("Start Print button pressed");
+  //logTextBox.appendText("baudRate = " + baudRate);
+  //logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
+  //logTextBox.appendText("Head Temperature = " + headTemp);
   //logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
   //logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
-  logTextBox.appendText("Bed Temperature = " + bedTemp);
+  //logTextBox.appendText("Bed Temperature = " + bedTemp);
   //logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
   //logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
-  logTextBox.appendText("infill = " + infill);
+  //logTextBox.appendText("infill = " + infill);
   // Checking isJobRunning is done within startPrintJob(), so I think we never have to
   //if (devControl.isJobRunning() == false)
   //{
@@ -373,7 +380,9 @@ public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSl
       //devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
 
       //Now send 3D object gcode
+      println("printing STARTED");
       devControl.startPrintJob(gcode);
+      println("printing ENDED");
     }
 
   //}
@@ -576,10 +585,10 @@ public void createGUI(){
   serialDevicesLabel.setOpaque(false);
   //Serial Devices DropList
   serialDevices = new GDropList(this, 1350, 85, 150, 100, 3);
-  String[] deviceList = {"   ", "1111", "2222","3333"}; //Serial.list()[0]
+  //String[] deviceList = {"   ", "1111", "2222","3333"}; //Serial.list()[0]
   //println("Serial List: " + Serial.list()[0]);
   //printArray(Serial.list());
-  serialDevices.setItems(deviceList, 0);
+  serialDevices.setItems(Serial.list(), 0);
   serialDevices.addEventHandler(this, "serialDevices_click1");
 
   //Baud Rate Label
@@ -787,7 +796,7 @@ public void createGUI(){
 
 
   //Status Label
-  statusLabel = new GLabel(this, 1160, 800, 230, 30);
+  statusLabel = new GLabel(this, 1160, 800, 175, 90);
   statusLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   statusLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   statusLabel.setText("Status:");
@@ -1037,9 +1046,9 @@ private void updateState()
     // Slice State
     if (STLFile == null || STLFile.length() <= 0)
         stateSlice = SliceState.NO_FILE;                       // no file string loaded
-    else if (STLFile.length() > 1 && gcode.size() > 0)
+    else if (gcode != null && gcode.size() > 0)
         stateSlice = SliceState.SLICED;                        // stl is sliced
-    else if (STLFile.length() > 1 && gcode.size() <= 0)
+    else if (gcode != null && gcode.size() <= 0)
         stateSlice = SliceState.NOT_SLICED;
     // Connection State
     if (devControl.serialConnected())
@@ -1079,15 +1088,15 @@ private void updateStatusLabel()
     }
     switch (stateSlice)
     {
-        case NO_FILE:    lblStatus[3] = "No File";
+        case NO_FILE:    lblStatus[2] = "No File";
                                     break;
-        case NOT_SLICED: lblStatus[3] = "Waiting to be Sliced";
+        case NOT_SLICED: lblStatus[2] = "Waiting to be Sliced";
                                     break;
-        case SLICED:     lblStatus[3] = "G-code generated";
+        case SLICED:     lblStatus[2] = "G-code generated";
                                     break;
         default:                    lblStatus[3] = "ERROR";
     }
-    statusLabel.setText("Printer: " + lblStatus[1] + " - STL: " + lblStatus[3] + " - Port: " + lblStatus[0]);
+    statusLabel.setText("Printer: " + lblStatus[1] + " - STL: " + lblStatus[2] + " - Port: " + lblStatus[0]);
 }
 
 
