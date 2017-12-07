@@ -519,7 +519,7 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
   ArrayList<Facet> facets = parser.parseSTL();
   // Slice object; includes output for timing the slicing procedure.
-  Slicer slice = new Slicer(facets, layerScale, infill); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
+  Slicer slice = new Slicer(facets, layerScale, infill, filament, nozzleDiameter); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
         // ***new version - Slicer(ArrayList<Facet> facets, float layerHeight, float infill)
   ArrayList<Layer> layers = slice.sliceLayers();
   gcode = slice.createGCode(layers, headTemp, bedTemp, new PVector(xArea, yArea, zArea));   //creates GCode to send to printer
