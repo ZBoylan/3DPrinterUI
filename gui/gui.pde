@@ -49,6 +49,7 @@ public void settings(){
 
 public void setup(){
   createGUI();
+  frameRate(10);
   layerScale = round2(layerScaleSlider.getValueF(), 2);
   port = serialDevices.getSelectedText();
   logTextBox.setTextEditEnabled(false);
@@ -85,7 +86,6 @@ public void setup(){
 }
 
 public void draw(){
-  frameRate(10);
   background(230);
   line(1130, 0, 1130, 950);
   stroke(126);
