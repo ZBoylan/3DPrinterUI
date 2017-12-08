@@ -65,6 +65,9 @@ public void setup(){
   xTextBox.setText("200");
   yTextBox.setText("200");
   zTextBox.setText("150");
+  infill = round2(infillSlider.getValueF(), 2);
+  filamentDiameter = round2(filamentSlider.getValueF(), 2);
+  nozzleDiameter = round2(nozzleSlider.getValueF(), 2);
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   headTemp = Integer.parseInt(headTempTextBox.getText());
   baudRate = Integer.parseInt(baudRateTextBox.getText());
