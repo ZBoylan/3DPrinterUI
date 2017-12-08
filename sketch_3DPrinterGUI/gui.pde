@@ -1,23 +1,25 @@
-/* =========================================================
- * ====                   WARNING                        ===
- * =========================================================
- * The code in this tab has been generated from the GUI form
- * designer and care should be taken when editing this file.
- * Only add/edit code inside the event handlers i.e. only
- * use lines between the matching comment tags. e.g.
+/*
+GUI for 3D printer
 
- void myBtnEvents(GButton button) { //_CODE_:button1:12356:
-     // It is safe to enter your event code here  
- } //_CODE_:button1:12356:
- 
- * Do not rename this tab!
- * =========================================================
- */
+Authors:
+Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
+
+Required Processing Library needed before running gui.pde:
+  - G4P
+
+To start GUI, simply press the "Play" button on Processing 3.3.6 or run gui.pde by double clicking
+it.
+This version is a first prototype so not all features are present/functional but are accurate.
+All features are mattered to change in final implementation.
+*/
 
 import processing.core.PApplet;
 import g4p_controls.*;
 import java.awt.*;
 import java.io.File;
+
+import processing.serial.*;
+import java.util.Arrays;
 
 import toxi.geom.*;
 import toxi.geom.mesh.*;
@@ -26,22 +28,84 @@ import toxi.processing.*;
 TriangleMesh mesh;
 ToxiclibsSupport gfx;
 
-boolean confirmClicked = false;
+//default max & min temptures for printer head and bed
+int TEMP_MAX = 400;
+int TEMP_MIN = 0;
 
+//Create Device Controller object
+DeviceController devControl = new DeviceController(this);
+ArrayList<String> gcode;
 
-public void settings(){
-  size(1400,700,P3D);
-}
+//For render & slicing
+PGraphics rendering;
+//RenderControler vis;
+boolean realsed = true;
+boolean confirmedClicked = false;
+boolean printerOpOpen = false;  //why do we need this?
+
+int i=0;
+int j=0;
+
+Model test;
+
+int last;
 
 public void setup(){
+  size(1570, 950, P3D);
+  //surface.setResizable(true);
   createGUI();
+  frameRate(10);
+  layerScale = round2(layerScaleSlider.getValueF(), 2);
+  port = serialDevices.getSelectedText();
+  //logTextBox.setTextEditEnabled(false);
+  inputWindow.setVisible(false);
+  warmupWindow.setVisible(false);
+  //logWindow.setVisible(false);
+  errorWindow.setVisible(false);
+  startSliceBtn.setVisible(false);
+  pauseSliceBtn.setVisible(false);
+  cancelPrintBtn.setVisible(false);
+  homingBtn.setVisible(false);
+  bedTempTextBox.setText("50");
+  headTempTextBox.setText("208");
+  baudRateTextBox.setText("115200");
+  xTextBox.setText("200");
+  yTextBox.setText("200");
+  zTextBox.setText("150");
+  infill = round2(infillSlider.getValueF(), 2);
+  filamentDiameter = round2(filamentSlider.getValueF(), 2);
+  nozzleDiameter = round2(nozzleSlider.getValueF(), 2);
+  bedTemp = Integer.parseInt(bedTempTextBox.getText());
+  headTemp = Integer.parseInt(headTempTextBox.getText());
+  baudRate = Integer.parseInt(baudRateTextBox.getText());
+  xArea = Integer.parseInt(xTextBox.getText());
+  yArea = Integer.parseInt(yTextBox.getText());
+  zArea = Integer.parseInt(zTextBox.getText());
+
+  //// To use Device Controller in test mode
+  //try {
+  //   devControl = new DeviceController(true);
+  //}
+  //catch(RuntimeException e) {
+  //   e.printStackTrace();
+  //   println("Failed to open serial port, aborting");
+  //   return;
+  //}
 }
 
 public void draw(){
-  background(255);  
-  if (confirmClicked){
+  background(230);
+  line(1130, 0, 1130, 950);
+  line(1130, 650, 1570, 650);
+  stroke(126);
+  updateStatusLabel();
+  //if (confirmedClicked){
+  //   rendering = createGraphics(250, 250, P3D);   // MOVE out of draw()
+
+  //}
+  if (confirmedClicked){
     lights();
-    translate(200, 180, 0);
+    translate(550, 450, 0);
     rotateX(mouseY*0.01);
     rotateY(mouseX*0.01);
     gfx.origin(new Vec3D(),200);
@@ -50,217 +114,677 @@ public void draw(){
   }
 }
 
+ public static float round2(float number, int scale) {
+    int pow = 10;
+    for (int i = 1; i < scale; i++)
+        pow *= 10;
+    float tmp = number * pow;
+    return ( (float) ( (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) ) ) / pow;
+}
+                         //Event Handlers
 
-public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
-  println("button1 - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:startSliceBtn:735941:
-
-public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
-  println("pauseSliceBtn - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:pauseSliceBtn:624877:
-
-public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
-  println("cancelPrintBtn - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:cancelPrintBtn:781425:
-
-public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
-  println("slider1 - GSlider >> GEvent." + event + " @ " + millis());
-} //_CODE_:infillSlider:696453:
-
-public void qualityLowRad_clicked(GOption source, GEvent event) { //_CODE_:qualityLowRad:596469:
-  println("qualityLowRad - GOption >> GEvent." + event + " @ " + millis());
-} //_CODE_:qualityLowRad:596469:
-
-public void qualityMedRad_clicked(GOption source, GEvent event) { //_CODE_:qualityMedRad:556993:
-  println("qualityMedRad - GOption >> GEvent." + event + " @ " + millis());
-} //_CODE_:qualityMedRad:556993:
-
-public void qualityHighRad_clicked(GOption source, GEvent event) { //_CODE_:qualityHighRad:770558:
-  println("qualityHighRad - GOption >> GEvent." + event + " @ " + millis());
-} //_CODE_:qualityHighRad:770558:
-
-public void printWhenReadyBox_clicked(GCheckbox source, GEvent event) { //_CODE_:printWhenReadyBox:392431:
-  println("printWhenReadyBox - GCheckbox >> GEvent." + event + " @ " + millis());
-} //_CODE_:printWhenReadyBox:392431:
-
-public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:690847:
-  println("button1 - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:warmUpBtn:690847:
-
-public void recenterHeadBtn_click(GButton source, GEvent event) { //_CODE_:recenterHeadBtn:245560:
-  println("recenterHeadBtn - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:recenterHeadBtn:245560:
-
-public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn:421460:
-  println("button1 - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:connectBtn:421460:
-
+//Choose File Button Click
 public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Choose file button clicked");
   //Select New File
-  STLFile = null; 
+  STLFile = null;
+  confirmedClicked = false;
   fileTextBox.setText("Choose File...");
   //Show the input Window
   inputWindow.setVisible(true);
 } //_CODE_:chooseFileBtn:320943:
 
+
+
+//Serial Devices DropList Click
+public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:serialDevices:306859:
+  println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
+  printArray(Serial.list());
+  if (Serial.list().length != 0){
+    port = source.getSelectedText();}
+
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
+
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
+
+  println("Port = " + port);
+  //logTextBox.appendText("Port = " + port);
+} //_CODE_:serialDevices:306859:
+
+
+
+//Baud Rate TextBox Change
+public void baudRateTextBox_change(GTextField source, GEvent event) {
+  baudRate = Integer.parseInt(baudRateTextBox.getText());
+  
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
+  
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
+
+  println("baudRate = " + baudRate);
+}
+
+
+
+//Print When Ready Box Clicked
+public void printWhenReadyBox_clicked(GCheckbox source, GEvent event) { //_CODE_:printWhenReadyBox:392431:
+  if (printWhenReadyBox.isSelected() == false)
+      printWhenReady = false;
+  else
+      printWhenReady = true;
+
+  println("printWhenReady is " + printWhenReady);
+  //logTextBox.appendText("printWhenReady is " + printWhenReady);
+} //_CODE_:printWhenReadyBox:392431:
+
+
+
+//Infill Slider Change
+public void qualitySlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
+  // var name = infillSlider
+  // Team wants value form 0.0 - 1.0 = divide by 100 if slider range is 0.0 - 100.0
+  //infill = infillSlider.getValueF();   // round2 function will set number of decimals you want for infill
+  infill = round2(infillSlider.getValueF(), 2);
+
+  println("infill = " + infill);
+
+} //_CODE_:infillSlider:696453:
+
+// checks for constraints to values stored in xTextBox, yTextBox, zTextBox
+// if out of range, uses a default min/max value
+public void areaTextfield_change(GTextField source, GEvent event) {
+    if (event == GEvent.LOST_FOCUS) {
+        int area = Integer.parseInt(source.getText());  // get string from txtbox convert to int
+        if (area < 1)
+            source.setText("1");
+        if (area > 200)
+            source.setText("200");
+        area = Integer.parseInt(source.getText());   //get new value
+        // find which control sent the event
+        if (source == xTextBox)
+            xArea = area;
+        else if (source == yTextBox)
+            yArea = area;
+        else if (source == zTextBox)
+            zArea = area;
+
+        println("x: " + xArea + ", y: " + yArea + ", z: " + zArea);
+        //logTextBox.appendText("x: " + xArea + ", y: " + yArea + ", z: " + zArea);
+    }
+}
+
+//Filament Slider Change
+public void filamentSlider_change(GSlider source, GEvent event) { 
+  filamentDiameter = round2(filamentSlider.getValueF(), 2);
+  println("Filament diameter = " + filamentDiameter);
+} 
+
+//Nozzle Slider Change
+public void nozzleSlider_change(GSlider source, GEvent event) { //_CODE_:nozzleSlider:915112:
+  nozzleDiameter = round2(nozzleSlider.getValueF(), 2);
+  println("Nozzle diameter = " + nozzleDiameter);
+} //_CODE_:nozzleSlider:915112:
+
+
+
+//Layer Scale Slider Change
+public void sliderLayerScale_change(GSlider source, GEvent event) { //_CODE_:layerScaleSlider:493757:
+  layerScale = round2(layerScaleSlider.getValueF(), 2);
+  println("Layer scale = " + layerScale);
+  //logTextBox.appendText("Layer scale = " + layerScale);
+} //_CODE_:layercaleSlider:493757:
+
+
+
+//Warm Up Window
+synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
+  appc.background(230);
+}
+
+//Warm Up Button Clicked
+public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:690847:
+  println("button1 - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Warm up button clicked");
+  warmupWindow.setVisible(true);
+} //_CODE_:warmUpBtn:690847:
+
+//Warmup Confirm Button Click
+public void warmupconfirmBtn_click(GButton source, GEvent event) {
+  println("warmupconfirmBtn - GButton >> GEvent." + event + " @ " + millis());
+  //Set Head Temp
+  headTemp = Integer.parseInt(headTempTextBox.getText());
+  println("Head Temperature = " + headTemp);
+
+  //Set Heating Head Code
+  //heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
+  //println("Heating Head Code set to " + heatingheadCode[0]);
+
+  //Set Heating Head + Waiting Code
+  //heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
+  //println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+
+
+  //Set Bed Temp
+  bedTemp = Integer.parseInt(bedTempTextBox.getText());
+  println("Bed Temperature = " + bedTemp);
+  //Set Heating Bed Code
+  //heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
+  //println("Heating Bed Code set to " + heatingbedCode[0]);
+  //Set Heating Bed + Waiting Code
+  //heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
+  //println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
+
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
+
+  warmupWindow.setVisible(false);
+}
+//Warmup Cancel Button Click
+public void warmupcancelBtn_click(GButton source, GEvent event) {
+  println("warmupcancelBtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Warm up cancel button clicked");
+  warmupWindow.setVisible(false);
+}
+
+
+//Homing Button Clicked
+public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHeadBtn:245560:
+  println("homingBtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Homing button clicked");
+
+  ArrayList<String> homingCode = new ArrayList<String>();
+  homingCode.add(homing[0]);   // Normal homing   G28: Move to Origin
+  // Will likely crash if not already connected to printer or if not in test mode
+  devControl.startPrintJob(homingCode);  //Need to pass ArrayList<String>
+} //_CODE_:homingBtn:245560:
+
+
+//Connect/disconnect to Printer Button Clicked
+public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn:421460:
+
+  println("Connect/disconnect to printer button clicked");
+  
+  if (connectBtn.getText() == "Connect to Printer"){
+    devControl.connectSerial(port, baudRate);
+    if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
+    if (devControl.serialConnected())
+    {
+      connectBtn.setText("Disconnect");
+    }
+  }
+  else {
+    devControl.disconnectSerial();
+    if (!devControl.serialConnected())
+    {
+      connectBtn.setText("Connect to Printer");  // allows you to pause more than once per print job
+    }
+  }
+  //logTextBox.appendText("Connect to printer button clicked");
+} //_CODE_:connectBtn:421460:
+
+//Start Button Click
+public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
+  println("Start Print button pressed");
+  //logTextBox.appendText("Start Print button pressed");
+  //logTextBox.appendText("baudRate = " + baudRate);
+  //logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
+  //logTextBox.appendText("Head Temperature = " + headTemp);
+  //logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
+  //logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
+  //logTextBox.appendText("Bed Temperature = " + bedTemp);
+  //logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
+  //logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  //logTextBox.appendText("infill = " + infill);
+  // Checking isJobRunning is done within startPrintJob(), so I think we never have to
+  //if (devControl.isJobRunning() == false)
+  //{
+
+    if(printerOpOpen){  // ?
+      startSliceBtn.setVisible(true);
+    }
+    else{
+
+      // Will likely crash if not already connected to printer or if not in test mode
+
+      ////Heat the bed
+      //ArrayList<String> heatBedGCode = new ArrayList<String>();
+      //heatBedGCode.add(heatingbedwaitCode[0]);
+      //devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
+
+      ////Heat the head
+      //ArrayList<String> heatHeadGCode = new ArrayList<String>();
+      //heatHeadGCode.add(heatingheadwaitCode[0]);
+      //devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
+
+      //Now send 3D object gcode
+      devControl.startPrintJob(gcode);
+    }
+
+  //}
+}//_CODE_:startSliceBtn:735941:
+
+
+
+//Pause Button Click
+public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
+  println("Pause / Resume button pressed");
+  //logTextBox.appendText("Pause / Resume button pressed");
+
+  if (pauseSliceBtn.getText() == "Pause"){
+    devControl.pauseJob();
+    pauseSliceBtn.setText("Resume");
+  }
+  else {
+    devControl.resumeJob();
+    pauseSliceBtn.setText("Pause");    // allows you to pause more than once per print job
+  }
+} //_CODE_:pauseSliceBtn:624877:
+
+
+//Cancel Button Click
+public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
+  println("Cancel Print button pressed");
+  //logTextBox.appendText("Cancel Print button pressed");
+  devControl.stopJob();
+
+  ArrayList<String> cooldownHomingCode = new ArrayList<String>();
+  cooldownHomingCode.add(cooldownHoming[0]);  // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
+  cooldownHomingCode.add(cooldownHoming[1]);
+  cooldownHomingCode.add(cooldownHoming[2]);
+  cooldownHomingCode.add(cooldownHoming[3]);
+
+  devControl.startPrintJob(cooldownHomingCode);
+} //_CODE_:cancelPrintBtn:781425:
+
+
+//Console Button Click
+//public void consoleBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
+//  println("Open Console window button pressed");
+//  //logTextBox.appendText("Open Console window button pressed");
+//  logWindow.setVisible(true);
+//} //_CODE_:cancelPrintBtn:781425:
+
+
+////Log Window
+//synchronized public void logWin_draw1(PApplet appc, GWinData data) {
+//  appc.background(230);
+//}
+
+//Log Cancel Button Click
+//public void logCloseBtn_click(GButton source, GEvent event) {
+//  println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+//  //logTextBox.appendText("Close Console window button clicked");
+//  logWindow.setVisible(false);
+//}
+
+//Arrow Button Clicked
 public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
   println("rightArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Right arrow button clicked");
 } //_CODE_:rightArrowbtn:338278:
 
 public void upArrowbtn_click1(GButton source, GEvent event) { //_CODE_:upArrowbtn:481853:
   println("upArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Up arrow button clicked");
 } //_CODE_:upArrowbtn:481853:
 
 public void leftArrowbtn_click1(GButton source, GEvent event) { //_CODE_:leftArrowbtn:840976:
   println("leftArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Left arrow button clicked");
 } //_CODE_:leftArrowbtn:840976:
 
 public void downArrowbtn_click1(GButton source, GEvent event) { //_CODE_:downArrowbtn:888588:
   println("downArrowbtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Down arrow button clicked");
 } //_CODE_:downArrowbtn:888588:
 
+
+
+//Choose File Window
 synchronized public void win_draw1(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
   appc.background(230);
 } //_CODE_:inputWindow:608766:
 
+//File TextBox Change
 public void fileTextBox_change(GTextField source, GEvent event) { //_CODE_:fileTextBox:274303:
   println("fileTextBox - GTextField >> GEvent." + event + " @ " + millis());
 } //_CODE_:fileTextBox:274303:
 
-//Select File
+//Select File Button Click
 public void searchFileBtn_click(GButton source, GEvent event) { //_CODE_:searchFileBtn:687641:
   println("searchFileBtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Select File Button Clicked");
   selectInput("Select a STL file:", "fileSelected");
 } //_CODE_:searchFileBtn:687641:
 
 public void fileSelected(File selection) {
   STLFile = selection.getAbsolutePath();
+  String fileExtension = STLFile.substring(STLFile.length() - 3);
+  if ( !(fileExtension.toLowerCase()).equals("stl") )
+  {
+    errorTextbox.setText("Incorrect file type chosen (non-STL file type)");
+    //logTextBox.appendText("Incorrect file type chosen (non-STL file type)");
+    errorWindow.setVisible(true);
+    STLFile = "";
+  }
   mesh=(TriangleMesh)new STLReader().loadBinary(sketchPath(STLFile),STLReader.TRIANGLEMESH);
   gfx=new ToxiclibsSupport(this);
   fileTextBox.setText(STLFile);
+  fileTextBox.setText(STLFile);
 }
 
+//GCode TextBox Change
 public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcodeTextBox:726640:
   println("textarea1 - GTextArea >> GEvent." + event + " @ " + millis());
 } //_CODE_:gcodeTextBox:726640:
 
+//Cancel Input Button Click
 public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
-  inputWindow.setVisible(false); 
-} //_CODE_:cancelInputBtn:6 29030:
+  //logTextBox.appendText("Cancel Input File Button Clicked");
+  inputWindow.setVisible(false);
+} //_CODE_:cancelInputBtn:629030:
 
+//Confirm Button Click
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
   println("confirmBtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Confirm Input File Button Clicked");
+  //logTextBox.appendText("Layer scale = " + layerScale);
   if (fileTextBox.getText() == STLFile) {
     currentFile.setText(STLFile);
     inputWindow.setVisible(false);
-    confirmClicked = true;
+    confirmedClicked = true;
   }
+
+  //Slicing functions - move to a separate "slice" button
+  STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
+  ArrayList<Facet> facets = parser.parseSTL();
+  // Slice object; includes output for timing the slicing procedure.
+  Slicer slice = new Slicer(facets, layerScale, infill, filamentDiameter, nozzleDiameter); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
+        // ***new version - Slicer(ArrayList<Facet> facets, float layerHeight, float infill)
+  ArrayList<Layer> layers = slice.sliceLayers();
+  gcode = slice.createGCode(layers, headTemp, bedTemp, new PVector(xArea, yArea, zArea));   //creates GCode to send to printer
+        // ***new version createGCode(ArrayList<Layer> layers, int extTemp, int bedTemp, PVector modelOffset)
+  rendering = createGraphics(250, 250);  // Does this work?
+  println("DONE");
 } //_CODE_:confirmBtn:275116:
 
-//Layer Slider
-public void layerSlider_change(GSlider source, GEvent event) { //_CODE_:infillSlider:696453:
-  println("slider1 - GSlider >> GEvent." + event + " @ " + millis());
-  layerHeight = layerSlider.getValueF();
-  layerValue.setText(str (layerHeight));
-} 
 
-// Create all the GUI controls. 
-// autogenerated do not edit
+//Error Window
+synchronized public void errorWin_draw(PApplet appc, GWinData data) { //_CODE_:inputWindow:608766:
+  appc.background(230);
+} //_CODE_:inputWindow:608766:
+
+//Error Close Button Click
+public void errorCloseBtn_click(GButton source, GEvent event) {
+  println("errorCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+  //logTextBox.appendText("Error Window Close Button Clicked");
+  errorTextbox.setText(" ");
+  errorWindow.setVisible(false);
+}
+
+// Checks if inputed temperature values are in range, if not uses default
+public void tempTextBox_change(GTextField source, GEvent event) {
+    println(event);
+    if (event == GEvent.LOST_FOCUS) {               //cursor out event
+        int tempValue = int(source.getText());      //convert string to int
+        if (tempValue < 0)
+            source.setText(str(TEMP_MIN));
+        else if (tempValue > TEMP_MAX)
+            source.setText(str(TEMP_MAX));
+    }
+}
+
+
+                                      // Create all the GUI controls.
 public void createGUI(){
   G4P.messagesEnabled(false);
   G4P.setGlobalColorScheme(GCScheme.BLUE_SCHEME);
   G4P.setCursor(ARROW);
-  surface.setTitle("Sketch Window");
-  startSliceBtn = new GButton(this, 530, 30, 80, 30);
-  startSliceBtn.setText("Start");
-  startSliceBtn.addEventHandler(this, "startSliceBtn_click");
-  pauseSliceBtn = new GButton(this, 620, 30, 80, 30);
-  pauseSliceBtn.setText("Pause");
-  pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
-  cancelPrintBtn = new GButton(this, 710, 30, 80, 30);
-  cancelPrintBtn.setText("Cancel");
-  cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
-  infillSlider = new GSlider(this, 630, 140, 160, 50, 10.0);
-  infillSlider.setShowValue(true);
-  infillSlider.setShowLimits(true);
-  infillSlider.setLimits(0.5, 0.0, 1.0);
-  infillSlider.setNbrTicks(100);
-  infillSlider.setNumberFormat(G4P.DECIMAL, 0);
-  infillSlider.setOpaque(false);
-  infillSlider.addEventHandler(this, "qualitySlider_change");
-  infillLabel = new GLabel(this, 669, 120, 80, 20);
-  infillLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-  infillLabel.setText("Infill %");
-  infillLabel.setOpaque(false);
-  qualityGroup = new GToggleGroup();
-  qualityLowRad = new GOption(this, 630, 220, 120, 20);
-  qualityLowRad.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  qualityLowRad.setText("Low");
-  qualityLowRad.setOpaque(false);
-  qualityLowRad.addEventHandler(this, "qualityLowRad_clicked");
-  qualityMedRad = new GOption(this, 630, 240, 120, 20);
-  qualityMedRad.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  qualityMedRad.setText("Medium");
-  qualityMedRad.setOpaque(false);
-  qualityMedRad.addEventHandler(this, "qualityMedRad_clicked");
-  qualityHighRad = new GOption(this, 630, 260, 120, 20);
-  qualityHighRad.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  qualityHighRad.setText("High");
-  qualityHighRad.setOpaque(false);
-  qualityHighRad.addEventHandler(this, "qualityHighRad_clicked");
-  qualityGroup.addControl(qualityLowRad);
-  qualityLowRad.setSelected(true);
-  qualityGroup.addControl(qualityMedRad);
-  qualityGroup.addControl(qualityHighRad);
-  qualityLabel = new GLabel(this, 630, 200, 80, 20);
-  qualityLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-  qualityLabel.setText("Quality");
-  qualityLabel.setOpaque(false);
-  printWhenReadyBox = new GCheckbox(this, 530, 150, 100, 30);
+  surface.setTitle("3D Printer");
+
+  //Choose File Button
+  chooseFileBtn = new GButton(this, 1160, 30, 100, 40);
+  chooseFileBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  chooseFileBtn.setText("Choose File");
+  chooseFileBtn.addEventHandler(this, "chooseFileBtn_click");
+  //Current File Label
+  currentFile = new GLabel(this, 1280, 40, 900, 20);
+  currentFile.setTextAlign(GAlign.LEFT, GAlign.BOTTOM);
+  currentFile.setFont(new java.awt.Font("Monospaced", Font.ITALIC, 14));
+  currentFile.setText("No File Selected...");
+  currentFile.setOpaque(false);
+
+  //Serial Devices Label
+  serialDevicesLabel = new GLabel(this, 1160, 60, 200, 80);
+  serialDevicesLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  serialDevicesLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  serialDevicesLabel.setText("Select Serial Device:");
+  serialDevicesLabel.setOpaque(false);
+  //Serial Devices DropList
+  serialDevices = new GDropList(this, 1350, 85, 150, 100, 3);
+  //String[] deviceList = {"   ", "1111", "2222","3333"}; //Serial.list()[0]
+  //println("Serial List: " + Serial.list()[0]);
+  //printArray(Serial.list());
+  if (Serial.list().length == 0)
+  {
+    String[] deviceList = {"No available ports."}; 
+    serialDevices.setItems(deviceList, 0);
+  }
+  else
+  {
+    serialDevices.setItems(Serial.list(), 0);
+  }
+  serialDevices.addEventHandler(this, "serialDevices_click1");
+
+  //Baud Rate Label
+  baudRateLabel = new GLabel(this, 1160, 120, 200, 50);
+  baudRateLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  baudRateLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  baudRateLabel.setText("Baud Rate:");
+  baudRateLabel.setOpaque(false);
+  //Baud Rate TextBox
+  baudRateTextBox = new GTextField(this, 1270, 125, 70, 30, G4P.SCROLLBARS_NONE);
+  baudRateTextBox.setOpaque(true);
+  baudRateTextBox.addEventHandler(this, "baudRateTextBox_change");
+
+  //Print When Ready CheckBox
+  printWhenReadyBox = new GCheckbox(this, 1360, 120, 200, 50);
   printWhenReadyBox.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
+  printWhenReadyBox.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   printWhenReadyBox.setText("Print When Ready");
   printWhenReadyBox.setOpaque(false);
   printWhenReadyBox.addEventHandler(this, "printWhenReadyBox_clicked");
-  warmUpBtn = new GButton(this, 530, 370, 80, 50);
-  warmUpBtn.setText("Warm Up Printer");
+
+  //Infill Label
+  infillLabel = new GLabel(this, 1390, 170, 80, 20);
+  infillLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  infillLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
+  infillLabel.setText("Infill:");
+  infillLabel.setOpaque(false);
+  //Infill Slider
+  infillSlider = new GSlider(this, 1350, 185, 160, 50, 10.0);
+  infillSlider.setShowValue(true);
+  infillSlider.setShowLimits(true);
+  infillSlider.setLimits(0.50, 0.00, 1.00);
+  infillSlider.setNbrTicks(100);
+  infillSlider.setNumberFormat(G4P.DECIMAL, 2);
+  infillSlider.setOpaque(false);
+  infillSlider.addEventHandler(this, "qualitySlider_change");
+
+  //Filament Label
+  filamentLabel = new GLabel(this, 1370, 245, 140, 30);
+  filamentLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  filamentLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
+  filamentLabel.setText("Filament Diameter:");
+  filamentLabel.setOpaque(false);
+  //Filament Slider
+  filamentSlider = new GSlider(this, 1350, 265, 160, 50, 10.0);
+  filamentSlider.setShowValue(true);;
+  filamentSlider.setShowLimits(true);
+  filamentSlider.setLimits(2.37, 1.75, 3.0);
+  filamentSlider.setNumberFormat(G4P.DECIMAL, 2);
+  filamentSlider.setOpaque(false);
+  filamentSlider.addEventHandler(this, "filamentSlider_change");
+  
+  //X Label
+  xLabel = new GLabel(this, 1155, 180, 80, 20);
+  xLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  xLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  xLabel.setText("X Area:");
+  xLabel.setOpaque(false);
+  //X TextBox
+  xTextBox = new GTextField(this, 1240, 175, 70, 30, G4P.SCROLLBARS_NONE);
+  xTextBox.setOpaque(true);
+  xTextBox.addEventHandler(this, "areaTextfield_change");
+
+  //Y Label
+  yLabel = new GLabel(this, 1155, 230, 80, 20);
+  yLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  yLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  yLabel.setText("Y Area:");
+  yLabel.setOpaque(false);
+  //Y TextBox
+  yTextBox = new GTextField(this, 1240, 225, 70, 30, G4P.SCROLLBARS_NONE);
+  yTextBox.setOpaque(true);
+  yTextBox.addEventHandler(this, "areaTextfield_change");
+
+  //Z Label
+  zLabel = new GLabel(this, 1155, 280, 80, 20);
+  zLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  zLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  zLabel.setText("Z Area:");
+  zLabel.setOpaque(false);
+  //Z TextBox
+  zTextBox = new GTextField(this, 1240, 275, 70, 30, G4P.SCROLLBARS_NONE);
+  zTextBox.setOpaque(true);
+  zTextBox.addEventHandler(this, "areaTextfield_change");
+
+  //Nozzle Label
+  nozzleLabel = new GLabel(this, 1380, 330, 200, 20);
+  nozzleLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  nozzleLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
+  nozzleLabel.setText("Nozzle Diameter:");
+  nozzleLabel.setOpaque(false);
+  //Nozzle Slider
+  nozzleSlider = new GSlider(this, 1350, 350, 160, 40, 10.0);
+  nozzleSlider.setShowValue(true);
+  nozzleSlider.setShowLimits(true);
+  nozzleSlider.setLimits(0.6, 0.2, 1.0);
+  nozzleSlider.setNumberFormat(G4P.DECIMAL, 2);
+  nozzleSlider.setOpaque(false);
+  nozzleSlider.addEventHandler(this, "nozzleSlider_change");
+
+  //Layer Scale Label
+  layerScaleLabel = new GLabel(this, 1200, 330, 200, 20);
+  layerScaleLabel.setTextAlign(GAlign.LEFT, GAlign.LEFT);
+  layerScaleLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
+  layerScaleLabel.setText("Layer Scale:");
+  layerScaleLabel.setOpaque(false);
+  //Layer Scale Slider
+  layerScaleSlider = new GSlider(this, 1160, 350, 160, 40, 10.0);
+  layerScaleSlider.setShowValue(true);
+  layerScaleSlider.setShowLimits(true);
+  layerScaleSlider.setLimits(0.2, 0.1, 0.3);
+  layerScaleSlider.setNumberFormat(G4P.DECIMAL, 2);
+  layerScaleSlider.setOpaque(false);
+  layerScaleSlider.addEventHandler(this, "sliderLayerScale_change");
+
+  //Warm Up Button
+  warmUpBtn = new GButton(this, 1160, 430, 110, 50);
+  warmUpBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  warmUpBtn.setText("Temperature Setting");
   warmUpBtn.addEventHandler(this, "warmUpBtn_click");
-  recenterHeadBtn = new GButton(this, 620, 370, 80, 50);
-  recenterHeadBtn.setText("Recenter Head to Origin");
-  recenterHeadBtn.addEventHandler(this, "recenterHeadBtn_click");
-  connectBtn = new GButton(this, 710, 370, 80, 49);
+
+  //Homing Button
+  homingBtn = new GButton(this, 1400, 430, 100, 50);
+  homingBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  homingBtn.setText("Homing");
+  homingBtn.addEventHandler(this, "homingBtn_click");
+
+  //Connect Button
+  connectBtn = new GButton(this, 1280, 430, 100, 50);
+  connectBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   connectBtn.setText("Connect to Printer");
   connectBtn.addEventHandler(this, "connectBtn_click");
-  statusLabel = new GLabel(this, 30, 430, 230, 30);
-  statusLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-  statusLabel.setText("Status");
+
+  //Start Button
+
+  startSliceBtn = new GButton(this, 1160, 500, 100, 40);
+  startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  startSliceBtn.setText("Start");
+  startSliceBtn.addEventHandler(this, "startSliceBtn_click");
+
+  //Pause Button
+  pauseSliceBtn = new GButton(this, 1280, 500, 100, 40);
+  pauseSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  pauseSliceBtn.setText("Pause");
+  pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
+
+  //Cancel Button
+  cancelPrintBtn = new GButton(this, 1400, 500, 100, 40);
+  cancelPrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  cancelPrintBtn.setText("Cancel");
+  cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
+
+  //Console Button
+  //consoleBtn = new GButton(this, 1400, 700, 100, 40);
+  //consoleBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  //consoleBtn.setText("Console");
+  //consoleBtn.addEventHandler(this, "consoleBtn_click");
+
+  //Status Label
+  statusLabel = new GLabel(this, 1160, 550, 250, 100);
+  statusLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  statusLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  statusLabel.setText("Status:");
   statusLabel.setOpaque(false);
-  
-  chooseFileBtn = new GButton(this, 530, 70, 80, 30);
-  chooseFileBtn.setText("Choose File");
-  chooseFileBtn.addEventHandler(this, "chooseFileBtn_click");
-  
-  //Current File Label
-  currentFile = new GLabel(this, 620, 80, 900, 20);
-  currentFile.setTextAlign(GAlign.LEFT, GAlign.BOTTOM);
-  currentFile.setFont(new java.awt.Font("Monospaced", Font.ITALIC, 12));
-  currentFile.setText("No File Selected...");
-  currentFile.setOpaque(false);
+
+  //Rendering Label
+  renderLabel = new GLabel(this, 1280, 670, 250, 30);
+  renderLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  renderLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  renderLabel.setText("Render Controls");
+  renderLabel.setOpaque(false);
   
   
-  rightArrowbtn = new GButton(this, 190, 360, 42, 36);
+  //Right Arrow
+  rightArrowbtn = new GButton(this, 1365, 780, 42, 36);
   rightArrowbtn.setIcon("ArrowRight.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   rightArrowbtn.addEventHandler(this, "rightArrowbtn_click1");
-  upArrowbtn = new GButton(this, 140, 330, 40, 41);
+  //Up Arrow
+  upArrowbtn = new GButton(this, 1325, 740, 40, 41);
   upArrowbtn.setIcon("ArrowUp.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   upArrowbtn.addEventHandler(this, "upArrowbtn_click1");
-  leftArrowbtn = new GButton(this, 90, 360, 44, 36);
+  //Left Arrow
+  leftArrowbtn = new GButton(this, 1280, 780, 44, 36);
   leftArrowbtn.setIcon("ArrowLeft.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   leftArrowbtn.addEventHandler(this, "leftArrowbtn_click1");
-  downArrowbtn = new GButton(this, 140, 380, 40, 40);
+  //Down Arrow
+  downArrowbtn = new GButton(this, 1325, 810, 40, 40);
   downArrowbtn.setIcon("ArrowDown.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
+
+  //Choose File Window
   inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
@@ -282,62 +806,263 @@ public void createGUI(){
   confirmBtn.addEventHandler(this, "confirmBtn_click");
   inputWindow.loop();
   inputWindow.setVisible(false);
-  
-  //Layer Slider
-  layerSlider = new GSlider(this, 30, 470, 422, 50, (float) 10.0);
-  layerSlider.setShowLimits(true);
-  layerSlider.setLimits(0.0, 0.01, 0.4);
-  layerSlider.setNbrTicks(50);
-  layerSlider.setNumberFormat(G4P.DECIMAL, 0);
-  layerSlider.setOpaque(false);
-  layerSlider.addEventHandler(this, "layerSlider_change");
-  
-  layerLabel = new GLabel(this, 30, 460, 80, 30);
-  layerLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
-  layerLabel.setText("Layer Height:");
-  layerLabel.setOpaque(false);
-  
-  layerValue = new GLabel(this, 110, 460, 90, 30);
-  layerValue.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
-  layerValue.setText("0");
-  layerValue.setOpaque(false);
-  
+
+  //Warm Up Settings Window
+  warmupWindow = GWindow.getWindow(this, "Warm Up Settings", 100, 100, 400, 250, JAVA2D);
+  warmupWindow.noLoop();
+  warmupWindow.addDrawHandler(this, "warmupWin_draw");
+  //Head Temp
+  headTempLabel = new GLabel(warmupWindow, 10, 10, 350, 30);
+  headTempLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  headTempLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  headTempLabel.setText("Head Temperature:");
+  headTempLabel.setOpaque(false);
+  headTempTextBox = new GTextField(warmupWindow, 180, 10, 70, 30, G4P.SCROLLBARS_NONE);
+  headTempTextBox.setOpaque(true);
+  headTempTextBox.addEventHandler(this, "tempTextBox_change");
+  //Bed Temp
+  bedTempLabel = new GLabel(warmupWindow, 10, 100, 200, 30);
+  bedTempLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  bedTempLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  bedTempLabel.setText("Bed Temperature:");
+  bedTempLabel.setOpaque(false);
+  bedTempTextBox = new GTextField(warmupWindow, 180, 100, 70, 30, G4P.SCROLLBARS_NONE);
+  bedTempTextBox.setOpaque(true);
+  bedTempTextBox.addEventHandler(this, "tempTextBox_change");
+  //Confirm
+  warmupconfirmBtn = new GButton(warmupWindow, 10, 200, 80, 30);
+  warmupconfirmBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  warmupconfirmBtn.setText("Confirm");
+  warmupconfirmBtn.addEventHandler(this, "warmupconfirmBtn_click");
+  //Cancel
+  warmupcancelBtn = new GButton(warmupWindow, 310, 200, 80, 30);
+  warmupcancelBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  warmupcancelBtn.setText("Cancel");
+  warmupcancelBtn.addEventHandler(this, "warmupcancelBtn_click");
+  warmupWindow.loop();
+
+  ////Log Window
+  //logWindow = GWindow.getWindow(this, "Console Log", 0, 0, 300, 350, JAVA2D);
+  //logWindow.noLoop();
+  //logWindow.addDrawHandler(this, "logWin_draw1");
+  //logTextBox = new GTextArea(logWindow, 10, 10, 290, 290, G4P.SCROLLBARS_BOTH);  //should have scrollbar
+  //logTextBox.setOpaque(true);
+  ////Close logWindow button
+  //logCloseBtn = new GButton(logWindow, 10, 310, 80, 30);
+  //logCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  //logCloseBtn.setText("Close");
+  //logCloseBtn.addEventHandler(this, "logCloseBtn_click");
+  //logWindow.loop();
+
+  //Error Window
+  errorWindow = GWindow.getWindow(this, "ERROR", 0, 0, 500, 220, JAVA2D);
+  errorWindow.noLoop();
+  errorWindow.addDrawHandler(this, "errorWin_draw");
+  errorHeadingLabel = new GLabel(errorWindow, 10, 10, 480, 40);
+  errorHeadingLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+  errorHeadingLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  errorHeadingLabel.setText("ERROR");
+  errorHeadingLabel.setOpaque(false);
+  errorTextbox = new GTextField(errorWindow, 10, 50, 480, 100, G4P.SCROLLBARS_VERTICAL_ONLY);
+  errorTextbox.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  errorTextbox.setOpaque(true);
+  //Close Error Window
+  errorCloseBtn = new GButton(errorWindow, 440, 170, 50, 30);
+  errorCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  errorCloseBtn.setText("OK");
+  errorCloseBtn.addEventHandler(this, "errorCloseBtn_click");
+  errorWindow.loop();
 }
 
-// Variable declarations 
-// autogenerated do not edit
-GButton startSliceBtn; 
-GButton pauseSliceBtn; 
-GButton cancelPrintBtn; 
-GSlider infillSlider; 
-GLabel infillLabel; 
-GToggleGroup qualityGroup; 
-GOption qualityLowRad; 
-GOption qualityMedRad; 
-GOption qualityHighRad; 
-GLabel qualityLabel; 
-GCheckbox printWhenReadyBox; 
-GButton warmUpBtn; 
-GButton recenterHeadBtn; 
-GButton connectBtn; 
-GLabel statusLabel; 
-GButton chooseFileBtn; 
-GButton rightArrowbtn; 
-GButton upArrowbtn; 
-GButton leftArrowbtn; 
-GButton downArrowbtn; 
-GWindow inputWindow;
-GTextField fileTextBox; 
-GButton searchFileBtn; 
-GTextArea gcodeTextBox; 
-GButton cancelInputBtn; 
-GButton confirmBtn; 
+                                       //Variables:
 
-String STLFile;
-float layerHeight;
+//Variables for 3D printer
+boolean printWhenReady;
+float infill;          // infill % (0 - 1)
+String filePath;
+int xArea;             //Range 1-200 for build area in x, y, z
+int yArea;
+int zArea;
+float nozzleDiameter;  //range 0-1
+float layerScale;       //range range 0 - 0.4
+
+GButton startSliceBtn;
+
+GButton pauseSliceBtn;
+
+GButton cancelPrintBtn;
+
+//Choose File
+GButton chooseFileBtn;
 GLabel currentFile;
+String STLFile;
 
-//Layer Slider
-GSlider layerSlider;
-GLabel layerLabel;
-GLabel layerValue;
+//Serial Devices
+GLabel serialDevicesLabel;
+GDropList serialDevices;
+String port;
+
+//Baud Rate
+Integer baudRate;
+GLabel baudRateLabel;
+GTextField baudRateTextBox;
+
+GCheckbox printWhenReadyBox;
+
+//Infill
+GSlider infillSlider;
+GLabel infillLabel;
+
+//XYZ
+GTextField xTextBox;
+GTextField yTextBox;
+GTextField zTextBox;
+GLabel xLabel;
+GLabel yLabel;
+GLabel zLabel;
+
+//Filament Diameter
+GSlider filamentSlider;
+GLabel filamentLabel;
+float filamentDiameter;
+
+//Nozzle
+GSlider nozzleSlider;
+GLabel nozzleLabel;
+
+//Layer
+GSlider layerScaleSlider;
+GLabel layerScaleLabel;
+
+GButton warmUpBtn;
+
+GButton homingBtn;
+
+GButton connectBtn;
+
+//Log Window
+//GButton consoleBtn;
+//GWindow logWindow;
+//GTextArea logTextBox;
+//GButton logCloseBtn;
+
+GLabel statusLabel;
+
+GLabel renderLabel;
+
+GButton rightArrowbtn;
+GButton upArrowbtn;
+GButton leftArrowbtn;
+GButton downArrowbtn;
+
+//Choose File Window
+GWindow inputWindow;
+GTextField fileTextBox;
+GButton searchFileBtn;
+GTextArea gcodeTextBox;
+GButton cancelInputBtn;
+GButton confirmBtn;
+
+//Warm Up Settings Window
+GWindow warmupWindow;
+GLabel headTempLabel;
+GTextField headTempTextBox;
+GLabel bedTempLabel;
+GTextField bedTempTextBox;
+GButton warmupconfirmBtn;
+GButton warmupcancelBtn;
+Integer headTemp;
+Integer bedTemp;
+
+//Error Popup
+GWindow errorWindow;
+GLabel errorHeadingLabel;
+GTextField errorTextbox;
+GButton errorCloseBtn;
+
+//Font Settings
+String Font_Type = "Sans-Serif";
+Integer Font_Size = 18;
+
+//Printing Codes for Preheating
+String [] homing = {"G28 \r\n"};  // normal homing
+String [] cooldownHoming = {"M104 S0 \r\n", "M140 S0 \r\n", "G28 X0 \r\n", "G28 Y0 \r\n"}; // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
+
+// Status Label and state of the program
+
+private enum ConnectState        { DISCONNECTED, CONNECTED }
+private enum PrinterState        { IDLE, PRINTING, PAUSE}
+private enum SliceState          { NO_FILE, NOT_SLICED, SLICED}
+
+// default startup states
+private ConnectState stateConnect = ConnectState.DISCONNECTED;
+private PrinterState statePrinter = PrinterState.IDLE;
+private SliceState stateSlice = SliceState.NO_FILE;
+
+private void updateState()
+{
+    // Slice State
+    if (STLFile == null || STLFile.length() <= 0)
+        stateSlice = SliceState.NO_FILE;                       // no file string loaded
+    else if (gcode != null && gcode.size() > 0)
+        stateSlice = SliceState.SLICED;                        // stl is sliced
+    else if (gcode != null && gcode.size() <= 0)
+        stateSlice = SliceState.NOT_SLICED;                   // stl is not sliced
+    // Connection State
+    if (devControl.serialConnected())
+        stateConnect = ConnectState.CONNECTED;                // connected to the serial port
+    else if (!devControl.serialConnected())
+        stateConnect = ConnectState.DISCONNECTED;
+    // Print State
+    if (devControl.isJobRunning() && !devControl.pauseRequested() && devControl.serialConnected())    // maybe remove serialConnect
+        statePrinter = PrinterState.PRINTING;                 // activly printing
+    else if (devControl.pauseRequested())
+        statePrinter = PrinterState.PAUSE;                    // printing paused
+    else if (!devControl.isJobRunning() || !devControl.pauseRequested() || devControl.serialConnected())  // maybe remove serialConnect
+        statePrinter = PrinterState.IDLE;                     // printer is idle
+}
+
+// Updates the status label with the corresponding state
+private void updateStatusLabel()
+{
+    updateState();
+    String[] lblStatus = new String[3];
+    switch (stateConnect)
+    {
+        case DISCONNECTED: lblStatus[0] = "Disconnected";
+                                        break;
+        case CONNECTED:    lblStatus[0] = "Connected";
+                                        break;
+        default:                        lblStatus[0] = "ERROR";
+    }
+    switch (statePrinter)
+    {
+        case IDLE:      lblStatus[1] = "Idle";
+                                     break;
+        case PRINTING:  lblStatus[1] = "Printing";
+                                     break;
+        case PAUSE:     lblStatus[1] = "Paused";
+                                     break;
+        default:                     lblStatus[1] = "ERROR";
+    }
+    switch (stateSlice)
+    {
+        case NO_FILE:    lblStatus[2] = "No File";
+                                    break;
+        case NOT_SLICED: lblStatus[2] = "Waiting to be Sliced";
+                                    break;
+        case SLICED:     lblStatus[2] = "G-code generated";
+                                    break;
+        default:                    lblStatus[3] = "ERROR";
+    }
+    statusLabel.setText("Printer: " + lblStatus[1] + " \nSTL: " + lblStatus[2] + " \nDevice: " + lblStatus[0]);
+}
+
+
+
+// This will be done by Slicing team now in their GCode generation
+//    *** We need to manually pass "Cooling" code if print job is cancelled/aborted -> M140 S0 and M104 S0
+//String [] heatingbedCode = {"M140 S0 \r\n"};
+//String [] heatingbedwaitCode = {"M190 S0"};
+//String [] heatingheadCode = {"M104 S0 \r\n"};
+//String [] heatingheadwaitCode = {"M109 S0"};
