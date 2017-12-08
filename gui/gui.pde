@@ -74,8 +74,9 @@ public void setup(){
   xArea = Integer.parseInt(xTextBox.getText());
   yArea = Integer.parseInt(yTextBox.getText());
   zArea = Integer.parseInt(zTextBox.getText());
+  
 
-  //// To use Device Controller in test mode
+  ////  ***   To use Device Controller in test mode   ***
   //try {
   //   devControl = new DeviceController(true);
   //}
@@ -114,7 +115,7 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
   //Select New File
   STLFile = null;
   confirmedClicked = false;
-  fileTextBox.setText("Choose File...");
+  fileTextBox.setText("Choose file with browse ->");
   //Show the input Window
   inputWindow.setVisible(true);
 } //_CODE_:chooseFileBtn:320943:
@@ -487,16 +488,23 @@ public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 
 //Confirm Button Click
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
-  println("confirmBtn - GButton >> GEvent." + event + " @ " + millis());
+  println("Confirm Input File Button Clicked");
   //logTextBox.appendText("Confirm Input File Button Clicked");
   //logTextBox.appendText("Layer scale = " + layerScale);
+  
+  // For new file chosen - isolate just the file name to display it on the UI
+  splitSTLFile = STLFile.split("/");
+  //println(splitSTLFile[splitSTLFile.length-1]);
+  
+  
   if (fileTextBox.getText() == STLFile) {
-    currentFile.setText(STLFile);
+    currentFile.setText("File selected: " + splitSTLFile[splitSTLFile.length-1]);
     inputWindow.setVisible(false);
     confirmedClicked = true;
   }
 
-  //Slicing functions - move to a separate "slice" button
+  
+  //   Slicing functions - move to a separate "slice" button
   STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
   ArrayList<Facet> facets = parser.parseSTL();
   // Slice object; includes output for timing the slicing procedure.
@@ -506,7 +514,8 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   gcode = slice.createGCode(layers, headTemp, bedTemp, new PVector(xArea, yArea, zArea));   //creates GCode to send to printer
         // ***new version createGCode(ArrayList<Layer> layers, int extTemp, int bedTemp, PVector modelOffset)
   rendering = createGraphics(250, 250);  // Does this work?
-  println("DONE");
+  //println("Done slicing");
+  
 } //_CODE_:confirmBtn:275116:
 
 
@@ -734,7 +743,7 @@ public void createGUI(){
   //consoleBtn.addEventHandler(this, "consoleBtn_click");
 
   //Status Label
-  statusLabel = new GLabel(this, 1160, 550, 250, 100);
+  statusLabel = new GLabel(this, 1160, 550, 400, 100);
   statusLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   statusLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   statusLabel.setText("Status:");
@@ -766,7 +775,7 @@ public void createGUI(){
   downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
 
   //Choose File Window
-  inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 280, 120, JAVA2D);
+  inputWindow = GWindow.getWindow(this, "Choose STL File", 0, 0, 280, 120, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
   fileTextBox = new GTextField(inputWindow, 10, 20, 160, 30, G4P.SCROLLBARS_NONE);
@@ -774,7 +783,7 @@ public void createGUI(){
   fileTextBox.setOpaque(true);
   fileTextBox.addEventHandler(this, "fileTextBox_change");
   searchFileBtn = new GButton(inputWindow, 180, 20, 80, 30);
-  searchFileBtn.setText("Search");
+  searchFileBtn.setText("Browse...");
   searchFileBtn.addEventHandler(this, "searchFileBtn_click");
   //gcodeTextBox = new GTextArea(inputWindow, 10, 80, 280, 220, G4P.SCROLLBARS_VERTICAL_ONLY);
   //gcodeTextBox.setOpaque(true);
@@ -877,6 +886,7 @@ GButton cancelPrintBtn;
 GButton chooseFileBtn;
 GLabel currentFile;
 String STLFile;
+String[] splitSTLFile;
 
 //Serial Devices
 GLabel serialDevicesLabel;
@@ -1032,7 +1042,7 @@ private void updateStatusLabel()
                                     break;
         case NOT_SLICED: lblStatus[2] = "Waiting to be Sliced";
                                     break;
-        case SLICED:     lblStatus[2] = "G-code generated";
+        case SLICED:     lblStatus[2] = "G-code generated for " + splitSTLFile[splitSTLFile.length-1];
                                     break;
         default:                    lblStatus[3] = "ERROR";
     }
