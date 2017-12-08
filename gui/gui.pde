@@ -124,9 +124,9 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
   println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
   printArray(Serial.list());
   port = source.getSelectedText();
-  //port = "/dev/pts/9";
 
-  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
+
       startSliceBtn.setVisible(true);
       pauseSliceBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
@@ -142,8 +142,9 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
 //Baud Rate TextBox Change
 public void baudRateTextBox_change(GTextField source, GEvent event) {
   baudRate = Integer.parseInt(baudRateTextBox.getText());
-
-  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
+  
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
+  
       startSliceBtn.setVisible(true);
       pauseSliceBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
@@ -295,8 +296,9 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   //Set Heating Bed + Waiting Code
   //heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
   //println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
+  
+  if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
 
-  if((headTemp != null && bedTemp != null) && baudRate != null && port != null){
       startSliceBtn.setVisible(true);
       pauseSliceBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
@@ -325,18 +327,30 @@ public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHea
 } //_CODE_:homingBtn:245560:
 
 
-//Connect Button Clicked
+//Connect/disconnect to Printer Button Clicked
 public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn:421460:
 
-  println("button1 - GButton >> GEvent." + event + " @ " + millis());
-
+  println("Connect/disconnect to printer button clicked");
+  
   if (connectBtn.getText() == "Connect to Printer"){
     devControl.connectSerial(port, baudRate);
-    connectBtn.setText("Disconnect");
+    if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
+      startSliceBtn.setVisible(true);
+      pauseSliceBtn.setVisible(true);
+      cancelPrintBtn.setVisible(true);
+      homingBtn.setVisible(true);
+  }
+    if (devControl.serialConnected())
+    {
+      connectBtn.setText("Disconnect");
+    }
   }
   else {
     devControl.disconnectSerial();
-    connectBtn.setText("Connect to Printer");    // allows you to pause more than once per print job
+    if (!devControl.serialConnected())
+    {
+      connectBtn.setText("Connect to Printer");  // allows you to pause more than once per print job
+    }
   }
   logTextBox.appendText("Connect to printer button clicked");
 } //_CODE_:connectBtn:421460:
@@ -516,7 +530,7 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
   ArrayList<Facet> facets = parser.parseSTL();
   // Slice object; includes output for timing the slicing procedure.
-  Slicer slice = new Slicer(facets, layerScale, infill); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
+  Slicer slice = new Slicer(facets, layerScale, infill, filament, nozzleDiameter); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
         // ***new version - Slicer(ArrayList<Facet> facets, float layerHeight, float infill)
   ArrayList<Layer> layers = slice.sliceLayers();
   gcode = slice.createGCode(layers, headTemp, bedTemp, new PVector(xArea, yArea, zArea));   //creates GCode to send to printer
