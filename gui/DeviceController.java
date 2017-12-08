@@ -61,7 +61,7 @@ public class DeviceController extends Thread {
 
   //closes serial port connection
   public boolean disconnectSerial() {
-    if (serialCom != null && sdaConnected) {
+    if (serialCom != null && serialConnected()) {
       synchronized(serialCom) {
         serialCom.stop();
       }
@@ -75,7 +75,7 @@ public class DeviceController extends Thread {
   //method used by thread
   public void run() {
     if (_connectSerial()) {
-      while (sdaConnected) {
+      while (serialConnected() || testMode) {
         if (jobRequest) {
           runPrintJob();
           jobRequest = false;
@@ -125,6 +125,18 @@ public class DeviceController extends Thread {
     }
   }
 
+  public boolean pauseRequested() {
+    synchronized(this) {
+      return pauseRequest;
+    }
+  }
+
+  public boolean stopRequested() {
+    synchronized(this) {
+      return stopRequest;
+    }
+  }
+
   //called to start a print job
   public boolean startPrintJob(ArrayList<String> GCodeFile) {
     //Reset stop/pause requests
@@ -133,11 +145,11 @@ public class DeviceController extends Thread {
       pauseRequest = false;
     }
 
-    if (!isJobRunning() && (sdaConnected || testMode)) {
-      thisApplet.saveStrings("print.gcode", GCodeFile.toArray(new String[GCodeFile.size()]));
-      //Store the GCode file internally, then start the printing thread
-      this.GCode = new ArrayList<String>(Arrays.asList(thisApplet.loadStrings("torus_flat.gcode")));
-      jobRequest = true;
+    if (!isJobRunning() && (serialConnected() || testMode)) {
+      synchronized(this) {
+        this.GCode = GCodeFile;
+        jobRequest = true;
+      }
       return true;
     }
     return false;
@@ -162,8 +174,11 @@ public class DeviceController extends Thread {
         }
       }
     }
-    synchronized(serialCom) {
-      serialCom.write("M110 N0\n");
+
+    if(!testMode) {
+      synchronized(serialCom) {
+        serialCom.write("M110 N0\n");
+      }
     }
 
     while (!testMode) {
@@ -208,8 +223,18 @@ public class DeviceController extends Thread {
         if (!line.startsWith("N")) {
           line = "N" + lineNumber + " " + line;
         }
-        //System.out.println(line);
-        while (!sendGCodeLine(line, lineNumber));
+        System.out.println(line);
+        if(!testMode) {
+          while (!sendGCodeLine(line, lineNumber));
+        }
+        else {
+          try {
+            sleep(15);
+          }
+          catch(InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
         lineNumber++;
       }
     }
@@ -249,7 +274,7 @@ public class DeviceController extends Thread {
 
       if (response != null) {
         System.out.println(response);
-        if (response.contains("ok " + lineNumber)) {
+        if (response.contains("ok " + lineNumber) || response.contains("skip " + lineNumber)) {
           return true;
         } else if (response.contains("T:")) {
           startTime = System.currentTimeMillis();
@@ -266,7 +291,7 @@ public class DeviceController extends Thread {
 
   //Connects to a printer on the specified serial port Returns true if the connection was successful, or false if the connection failed
   private boolean _connectSerial() {
-    if (!sdaConnected) {
+    if (!serialConnected() && !testMode) {
       try {
         System.out.println("Connecting to printer on port " + port);
         serialCom = new Serial(thisApplet, port, baudRate);
@@ -280,26 +305,16 @@ public class DeviceController extends Thread {
         return false;
       }
     }
+    else if(testMode) {
+      sdaConnected = true;
+      return true;
+    }
     System.out.println("Serial port is already connected...");
     return false;
   }
 
-  private boolean pauseRequested() {
-    synchronized(this) {
-      return pauseRequest;
-    }
-  }
-
-  private boolean stopRequested() {
-    synchronized(this) {
-      return stopRequest;
-    }
-  }
-
   private Serial             serialCom;
   private ArrayList<String>  GCode;
-  private ArrayList<String>  startCode;
-  private ArrayList<String>  stopCode;
   private PApplet            thisApplet;
   private String             port;
   private int                baudRate;
