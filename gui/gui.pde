@@ -605,14 +605,14 @@ public void createGUI(){
   infillSlider = new GSlider(this, 1350, 185, 160, 50, 10.0);
   infillSlider.setShowValue(true);
   infillSlider.setShowLimits(true);
-  infillSlider.setLimits(0.5, 0.0, 1.0);
+  infillSlider.setLimits(0.50, 0.00, 1.00);
   infillSlider.setNbrTicks(100);
-  infillSlider.setNumberFormat(G4P.DECIMAL, 0);
+  infillSlider.setNumberFormat(G4P.DECIMAL, 2);
   infillSlider.setOpaque(false);
   infillSlider.addEventHandler(this, "qualitySlider_change");
 
   //Filament Label
-  filamentLabel = new GLabel(this, 1370, 245, 130, 30);
+  filamentLabel = new GLabel(this, 1370, 245, 140, 30);
   filamentLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   filamentLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
   filamentLabel.setText("Filament Diameter:");
@@ -690,7 +690,7 @@ public void createGUI(){
   layerScaleSlider.addEventHandler(this, "sliderLayerScale_change");
 
   //Warm Up Button
-  warmUpBtn = new GButton(this, 1160, 430, 100, 50);
+  warmUpBtn = new GButton(this, 1160, 430, 110, 50);
   warmUpBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   warmUpBtn.setText("Temperature Setting");
   warmUpBtn.addEventHandler(this, "warmUpBtn_click");
