@@ -123,7 +123,8 @@ public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseF
 public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:serialDevices:306859:
   println("serialDevices - GDropList >> GEvent." + event + " @ " + millis());
   printArray(Serial.list());
-  port = source.getSelectedText();
+  if (Serial.list().length != 0){
+    port = source.getSelectedText();}
 
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
 
@@ -596,7 +597,15 @@ public void createGUI(){
   //String[] deviceList = {"   ", "1111", "2222","3333"}; //Serial.list()[0]
   //println("Serial List: " + Serial.list()[0]);
   //printArray(Serial.list());
-  serialDevices.setItems(Serial.list(), 0);
+  if (Serial.list().length == 0)
+  {
+    String[] deviceList = {"No available ports."}; 
+    serialDevices.setItems(deviceList, 0);
+  }
+  else
+  {
+    serialDevices.setItems(Serial.list(), 0);
+  }
   serialDevices.addEventHandler(this, "serialDevices_click1");
 
   //Baud Rate Label
