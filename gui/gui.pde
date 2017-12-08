@@ -52,10 +52,10 @@ public void setup(){
   frameRate(10);
   layerScale = round2(layerScaleSlider.getValueF(), 2);
   port = serialDevices.getSelectedText();
-  logTextBox.setTextEditEnabled(false);
+  //logTextBox.setTextEditEnabled(false);
   inputWindow.setVisible(false);
   warmupWindow.setVisible(false);
-  logWindow.setVisible(false);
+  //logWindow.setVisible(false);
   errorWindow.setVisible(false);
   startSliceBtn.setVisible(false);
   pauseSliceBtn.setVisible(false);
@@ -88,6 +88,7 @@ public void setup(){
 public void draw(){
   background(230);
   line(1130, 0, 1130, 950);
+  line(1130, 650, 1570, 650);
   stroke(126);
   updateStatusLabel();
   //if (confirmedClicked){
@@ -108,7 +109,7 @@ public void draw(){
 //Choose File Button Click
 public void chooseFileBtn_click(GButton source, GEvent event) { //_CODE_:chooseFileBtn:320943:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Choose file button clicked");
+  //logTextBox.appendText("Choose file button clicked");
   //Select New File
   STLFile = null;
   confirmedClicked = false;
@@ -165,7 +166,7 @@ public void printWhenReadyBox_clicked(GCheckbox source, GEvent event) { //_CODE_
       printWhenReady = true;
 
   println("printWhenReady is " + printWhenReady);
-  logTextBox.appendText("printWhenReady is " + printWhenReady);
+  //logTextBox.appendText("printWhenReady is " + printWhenReady);
 } //_CODE_:printWhenReadyBox:392431:
 
 
@@ -200,48 +201,15 @@ public void areaTextfield_change(GTextField source, GEvent event) {
             zArea = area;
 
         println("x: " + xArea + ", y: " + yArea + ", z: " + zArea);
-        logTextBox.appendText("x: " + xArea + ", y: " + yArea + ", z: " + zArea);
+        //logTextBox.appendText("x: " + xArea + ", y: " + yArea + ", z: " + zArea);
     }
 }
 
-//Quality Low Clicked
-public void qualityLowRad_clicked(GOption source, GEvent event) { //_CODE_:qualityLowRad:596469:
-  quality = 0;
-  println("quality set to low = " + quality);
-  logTextBox.appendText("quality set to low = " + quality);
-} //_CODE_:qualityLowRad:596469:
-
-//Quality Med Clicked
-public void qualityMedRad_clicked(GOption source, GEvent event) { //_CODE_:qualityMedRad:556993:
-  quality = 1;
-  println("quality set to medium = " + quality);
-  logTextBox.appendText("quality set to medium = " + quality);
-} //_CODE_:qualityMedRad:556993:
-
-//Quality High Clicked
-public void qualityHighRad_clicked(GOption source, GEvent event) { //_CODE_:qualityHighRad:770558:
-  quality = 2;
-  println("quality set to high = " + quality);
-  logTextBox.appendText("quality set to high = " + quality);
-} //_CODE_:qualityHighRad:770558:
-
-
-
-//Filament 1.75 Clicked
-public void filament175_clicked(GOption source, GEvent event) {
-  filament = 1.75;
-  println("filament  = " + filament);
-  logTextBox.appendText("filament  = " + filament);
-}
-
-//Filament 3.00 Clicked
-public void filament3_clicked(GOption source, GEvent event) {
-  filament = 3.00;
-  println("filament  = " + filament);
-  logTextBox.appendText("filament  = " + filament);
-}
-
-
+//Filament Slider Change
+public void filamentSlider_change(GSlider source, GEvent event) { 
+  filamentDiameter = round2(filamentSlider.getValueF(), 2);
+  println("Filament diameter = " + filamentDiameter);
+} 
 
 //Nozzle Slider Change
 public void nozzleSlider_change(GSlider source, GEvent event) { //_CODE_:nozzleSlider:915112:
@@ -268,7 +236,7 @@ synchronized public void warmupWin_draw(PApplet appc, GWinData data) {
 //Warm Up Button Clicked
 public void warmUpBtn_click(GButton source, GEvent event) { //_CODE_:warmUpBtn:690847:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Warm up button clicked");
+  //logTextBox.appendText("Warm up button clicked");
   warmupWindow.setVisible(true);
 } //_CODE_:warmUpBtn:690847:
 
@@ -311,7 +279,7 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
 //Warmup Cancel Button Click
 public void warmupcancelBtn_click(GButton source, GEvent event) {
   println("warmupcancelBtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Warm up cancel button clicked");
+  //logTextBox.appendText("Warm up cancel button clicked");
   warmupWindow.setVisible(false);
 }
 
@@ -319,7 +287,7 @@ public void warmupcancelBtn_click(GButton source, GEvent event) {
 //Homing Button Clicked
 public void homingBtn_click(GButton source, GEvent event) { //_CODE_:recenterHeadBtn:245560:
   println("homingBtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Homing button clicked");
+  //logTextBox.appendText("Homing button clicked");
 
   ArrayList<String> homingCode = new ArrayList<String>();
   homingCode.add(homing[0]);   // Normal homing   G28: Move to Origin
@@ -353,7 +321,7 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
       connectBtn.setText("Connect to Printer");  // allows you to pause more than once per print job
     }
   }
-  logTextBox.appendText("Connect to printer button clicked");
+  //logTextBox.appendText("Connect to printer button clicked");
 } //_CODE_:connectBtn:421460:
 
 //Start Button Click
@@ -432,44 +400,44 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 
 
 //Console Button Click
-public void consoleBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
-  println("Open Console window button pressed");
-  //logTextBox.appendText("Open Console window button pressed");
-  logWindow.setVisible(true);
-} //_CODE_:cancelPrintBtn:781425:
+//public void consoleBtn_click(GButton source, GEvent event) { //_CODE_:cancelPrintBtn:781425:
+//  println("Open Console window button pressed");
+//  //logTextBox.appendText("Open Console window button pressed");
+//  logWindow.setVisible(true);
+//} //_CODE_:cancelPrintBtn:781425:
 
 
-//Log Window
-synchronized public void logWin_draw1(PApplet appc, GWinData data) {
-  appc.background(230);
-}
+////Log Window
+//synchronized public void logWin_draw1(PApplet appc, GWinData data) {
+//  appc.background(230);
+//}
 
 //Log Cancel Button Click
-public void logCloseBtn_click(GButton source, GEvent event) {
-  println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Close Console window button clicked");
-  logWindow.setVisible(false);
-}
+//public void logCloseBtn_click(GButton source, GEvent event) {
+//  println("logCloseBtn - GButton >> GEvent." + event + " @ " + millis());
+//  //logTextBox.appendText("Close Console window button clicked");
+//  logWindow.setVisible(false);
+//}
 
 //Arrow Button Clicked
 public void rightArrowbtn_click1(GButton source, GEvent event) { //_CODE_:rightArrowbtn:338278:
   println("rightArrowbtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Right arrow button clicked");
+  //logTextBox.appendText("Right arrow button clicked");
 } //_CODE_:rightArrowbtn:338278:
 
 public void upArrowbtn_click1(GButton source, GEvent event) { //_CODE_:upArrowbtn:481853:
   println("upArrowbtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Up arrow button clicked");
+  //logTextBox.appendText("Up arrow button clicked");
 } //_CODE_:upArrowbtn:481853:
 
 public void leftArrowbtn_click1(GButton source, GEvent event) { //_CODE_:leftArrowbtn:840976:
   println("leftArrowbtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Left arrow button clicked");
+  //logTextBox.appendText("Left arrow button clicked");
 } //_CODE_:leftArrowbtn:840976:
 
 public void downArrowbtn_click1(GButton source, GEvent event) { //_CODE_:downArrowbtn:888588:
   println("downArrowbtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Down arrow button clicked");
+  //logTextBox.appendText("Down arrow button clicked");
 } //_CODE_:downArrowbtn:888588:
 
 
@@ -487,7 +455,7 @@ public void fileTextBox_change(GTextField source, GEvent event) { //_CODE_:fileT
 //Select File Button Click
 public void searchFileBtn_click(GButton source, GEvent event) { //_CODE_:searchFileBtn:687641:
   println("searchFileBtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Select File Button Clicked");
+  //logTextBox.appendText("Select File Button Clicked");
   selectInput("Select a STL file:", "fileSelected");
 } //_CODE_:searchFileBtn:687641:
 
@@ -497,7 +465,7 @@ public void fileSelected(File selection) {
   if ( !(fileExtension.toLowerCase()).equals("stl") )
   {
     errorTextbox.setText("Incorrect file type chosen (non-STL file type)");
-    logTextBox.appendText("Incorrect file type chosen (non-STL file type)");
+    //logTextBox.appendText("Incorrect file type chosen (non-STL file type)");
     errorWindow.setVisible(true);
     STLFile = "";
   }
@@ -512,7 +480,7 @@ public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcode
 //Cancel Input Button Click
 public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
   println("button1 - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Cancel Input File Button Clicked");
+  //logTextBox.appendText("Cancel Input File Button Clicked");
   inputWindow.setVisible(false);
 } //_CODE_:cancelInputBtn:629030:
 
@@ -531,7 +499,7 @@ public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn
   STLParser parser = new STLParser(STLFile); // Change %FILENAME% to the file name of the STL.
   ArrayList<Facet> facets = parser.parseSTL();
   // Slice object; includes output for timing the slicing procedure.
-  Slicer slice = new Slicer(facets, layerScale, infill, filament, nozzleDiameter); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
+  Slicer slice = new Slicer(facets, layerScale, infill, filamentDiameter, nozzleDiameter); // Change %LAYERHEIGHT% to a value from 0.3 (low quality) to 0.1 (high quality).
         // ***new version - Slicer(ArrayList<Facet> facets, float layerHeight, float infill)
   ArrayList<Layer> layers = slice.sliceLayers();
   gcode = slice.createGCode(layers, headTemp, bedTemp, new PVector(xArea, yArea, zArea));   //creates GCode to send to printer
@@ -549,7 +517,7 @@ synchronized public void errorWin_draw(PApplet appc, GWinData data) { //_CODE_:i
 //Error Close Button Click
 public void errorCloseBtn_click(GButton source, GEvent event) {
   println("errorCloseBtn - GButton >> GEvent." + event + " @ " + millis());
-  logTextBox.appendText("Error Window Close Button Clicked");
+  //logTextBox.appendText("Error Window Close Button Clicked");
   errorTextbox.setText(" ");
   errorWindow.setVisible(false);
 }
@@ -620,7 +588,7 @@ public void createGUI(){
   baudRateTextBox.addEventHandler(this, "baudRateTextBox_change");
 
   //Print When Ready CheckBox
-  printWhenReadyBox = new GCheckbox(this, 1160, 170, 200, 50);
+  printWhenReadyBox = new GCheckbox(this, 1360, 120, 200, 50);
   printWhenReadyBox.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
   printWhenReadyBox.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   printWhenReadyBox.setText("Print When Ready");
@@ -628,212 +596,171 @@ public void createGUI(){
   printWhenReadyBox.addEventHandler(this, "printWhenReadyBox_clicked");
 
   //Infill Label
-  infillLabel = new GLabel(this, 1390, 150, 80, 20);
+  infillLabel = new GLabel(this, 1390, 170, 80, 20);
   infillLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-  infillLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  infillLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
   infillLabel.setText("Infill:");
   infillLabel.setOpaque(false);
   //Infill Slider
-  infillSlider = new GSlider(this, 1350, 170, 160, 50, 10.0);
+  infillSlider = new GSlider(this, 1350, 185, 160, 50, 10.0);
   infillSlider.setShowValue(true);
   infillSlider.setShowLimits(true);
-  infillSlider.setLimits(0.5, 0.0, 1.0);
+  infillSlider.setLimits(0.50, 0.00, 1.00);
   infillSlider.setNbrTicks(100);
-  infillSlider.setNumberFormat(G4P.DECIMAL, 0);
+  infillSlider.setNumberFormat(G4P.DECIMAL, 2);
   infillSlider.setOpaque(false);
   infillSlider.addEventHandler(this, "qualitySlider_change");
 
+  //Filament Label
+  filamentLabel = new GLabel(this, 1370, 245, 140, 30);
+  filamentLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  filamentLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
+  filamentLabel.setText("Filament Diameter:");
+  filamentLabel.setOpaque(false);
+  //Filament Slider
+  filamentSlider = new GSlider(this, 1350, 265, 160, 50, 10.0);
+  filamentSlider.setShowValue(true);;
+  filamentSlider.setShowLimits(true);
+  filamentSlider.setLimits(2.37, 1.75, 3.0);
+  filamentSlider.setNumberFormat(G4P.DECIMAL, 2);
+  filamentSlider.setOpaque(false);
+  filamentSlider.addEventHandler(this, "filamentSlider_change");
+  
   //X Label
-  xLabel = new GLabel(this, 1155, 240, 80, 20);
+  xLabel = new GLabel(this, 1155, 180, 80, 20);
   xLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   xLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   xLabel.setText("X Area:");
   xLabel.setOpaque(false);
   //X TextBox
-  xTextBox = new GTextField(this, 1240, 235, 70, 30, G4P.SCROLLBARS_NONE);
+  xTextBox = new GTextField(this, 1240, 175, 70, 30, G4P.SCROLLBARS_NONE);
   xTextBox.setOpaque(true);
   xTextBox.addEventHandler(this, "areaTextfield_change");
 
   //Y Label
-  yLabel = new GLabel(this, 1155, 290, 80, 20);
+  yLabel = new GLabel(this, 1155, 230, 80, 20);
   yLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   yLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   yLabel.setText("Y Area:");
   yLabel.setOpaque(false);
   //Y TextBox
-  yTextBox = new GTextField(this, 1240, 285, 70, 30, G4P.SCROLLBARS_NONE);
+  yTextBox = new GTextField(this, 1240, 225, 70, 30, G4P.SCROLLBARS_NONE);
   yTextBox.setOpaque(true);
   yTextBox.addEventHandler(this, "areaTextfield_change");
 
   //Z Label
-  zLabel = new GLabel(this, 1155, 340, 80, 20);
+  zLabel = new GLabel(this, 1155, 280, 80, 20);
   zLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
   zLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   zLabel.setText("Z Area:");
   zLabel.setOpaque(false);
   //Z TextBox
-  zTextBox = new GTextField(this, 1240, 335, 70, 30, G4P.SCROLLBARS_NONE);
+  zTextBox = new GTextField(this, 1240, 275, 70, 30, G4P.SCROLLBARS_NONE);
   zTextBox.setOpaque(true);
   zTextBox.addEventHandler(this, "areaTextfield_change");
 
-  //Quality Label
-  //    ***Don't need this low, medium, high quality radio group - quality will be set by layerScale (.1 - .3)
-  qualityLabel = new GLabel(this, 1390, 240, 80, 20);
-  qualityLabel.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-  qualityLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  qualityLabel.setText("Quality:");
-  qualityLabel.setOpaque(false);
-  //Quality Radio Group
-  qualityGroup = new GToggleGroup();
-  //Quality Low
-  qualityLowRad = new GOption(this, 1350, 260, 120, 30);
-  qualityLowRad.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  qualityLowRad.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  qualityLowRad.setText("Low");
-  qualityLowRad.setOpaque(false);
-  qualityLowRad.addEventHandler(this, "qualityLowRad_clicked");
-  //Quality Med
-  qualityMedRad = new GOption(this, 1350, 290, 120, 30);
-  qualityMedRad.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  qualityMedRad.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  qualityMedRad.setText("Medium");
-  qualityMedRad.setOpaque(false);
-  qualityMedRad.addEventHandler(this, "qualityMedRad_clicked");
-  //Quality High
-  qualityHighRad = new GOption(this, 1350, 320, 120, 30);
-  qualityHighRad.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  qualityHighRad.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  qualityHighRad.setText("High");
-  qualityHighRad.setOpaque(false);
-  qualityHighRad.addEventHandler(this, "qualityHighRad_clicked");
-  //Set Quality Rad Group
-  qualityGroup.addControl(qualityLowRad);
-  qualityLowRad.setSelected(true);
-  qualityGroup.addControl(qualityMedRad);
-  qualityGroup.addControl(qualityHighRad);
-
-  //Filament Diameter Label
-  filamentLabel= new GLabel(this, 1165, 390, 200, 20);
-  filamentLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
-  filamentLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  filamentLabel.setText("Filament Diameter:");
-  filamentLabel.setOpaque(false);
-  //Filament Rad Group
-  filamentGroup = new GToggleGroup();
-  //Filament 1.75
-  filament175 = new GOption(this, 1350, 385, 60, 30);
-  filament175.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  filament175.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  filament175.setText("1.75");
-  filament175.setOpaque(false);
-  filament175.addEventHandler(this, "filament175_clicked");
-  //Filament 3.00
-  filament3 = new GOption(this, 1430, 385, 80, 30);
-  filament3.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  filament3.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  filament3.setText("3.00");
-  filament3.setOpaque(false);
-  filament3.addEventHandler(this, "filament3_clicked");
-  //Set Filament Rad Group
-  filamentGroup.addControl(filament175);
-  filament175.setSelected(true);
-  filamentGroup.addControl(filament3);
-
   //Nozzle Label
-  nozzleLabel = new GLabel(this, 1135, 440, 200, 20);
-  nozzleLabel.setTextAlign(GAlign.CENTER, GAlign.LEFT);
-  nozzleLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  nozzleLabel = new GLabel(this, 1380, 330, 200, 20);
+  nozzleLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  nozzleLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
   nozzleLabel.setText("Nozzle Diameter:");
   nozzleLabel.setOpaque(false);
   //Nozzle Slider
-  nozzleSlider = new GSlider(this, 1350, 430, 160, 40, 10.0);
+  nozzleSlider = new GSlider(this, 1350, 350, 160, 40, 10.0);
   nozzleSlider.setShowValue(true);
+  nozzleSlider.setShowLimits(true);
   nozzleSlider.setLimits(0.5, 0.0, 1.0);
   nozzleSlider.setNumberFormat(G4P.DECIMAL, 2);
   nozzleSlider.setOpaque(false);
   nozzleSlider.addEventHandler(this, "nozzleSlider_change");
 
   //Layer Scale Label
-  layerScaleLabel = new GLabel(this, 1115, 490, 200, 30);
-  layerScaleLabel.setTextAlign(GAlign.CENTER, GAlign.LEFT);
-  layerScaleLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  layerScaleLabel = new GLabel(this, 1200, 330, 200, 20);
+  layerScaleLabel.setTextAlign(GAlign.LEFT, GAlign.LEFT);
+  layerScaleLabel.setFont(new Font(Font_Type, Font.PLAIN, 14));
   layerScaleLabel.setText("Layer Scale:");
   layerScaleLabel.setOpaque(false);
   //Layer Scale Slider
-  layerScaleSlider = new GSlider(this, 1350, 485, 160, 40, 10.0);
+  layerScaleSlider = new GSlider(this, 1160, 350, 160, 40, 10.0);
   layerScaleSlider.setShowValue(true);
+  layerScaleSlider.setShowLimits(true);
   layerScaleSlider.setLimits(0.2, 0.1, 0.3);
   layerScaleSlider.setNumberFormat(G4P.DECIMAL, 2);
   layerScaleSlider.setOpaque(false);
   layerScaleSlider.addEventHandler(this, "sliderLayerScale_change");
 
   //Warm Up Button
-  warmUpBtn = new GButton(this, 1160, 550, 100, 50);
+  warmUpBtn = new GButton(this, 1160, 430, 110, 50);
   warmUpBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   warmUpBtn.setText("Temperature Setting");
   warmUpBtn.addEventHandler(this, "warmUpBtn_click");
 
   //Homing Button
-  homingBtn = new GButton(this, 1400, 550, 100, 50);
+  homingBtn = new GButton(this, 1400, 430, 100, 50);
   homingBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   homingBtn.setText("Homing");
   homingBtn.addEventHandler(this, "homingBtn_click");
 
   //Connect Button
-  connectBtn = new GButton(this, 1280, 550, 100, 50);
+  connectBtn = new GButton(this, 1280, 430, 100, 50);
   connectBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
   connectBtn.setText("Connect to Printer");
   connectBtn.addEventHandler(this, "connectBtn_click");
 
-    //Start Button
+  //Start Button
 
-  startSliceBtn = new GButton(this, 1160, 620, 100, 40);
+  startSliceBtn = new GButton(this, 1160, 500, 100, 40);
   startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   startSliceBtn.setText("Start");
   startSliceBtn.addEventHandler(this, "startSliceBtn_click");
 
   //Pause Button
-  pauseSliceBtn = new GButton(this, 1280, 620, 100, 40);
+  pauseSliceBtn = new GButton(this, 1280, 500, 100, 40);
   pauseSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   pauseSliceBtn.setText("Pause");
   pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
 
   //Cancel Button
-  cancelPrintBtn = new GButton(this, 1400, 620, 100, 40);
+  cancelPrintBtn = new GButton(this, 1400, 500, 100, 40);
   cancelPrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   cancelPrintBtn.setText("Cancel");
   cancelPrintBtn.addEventHandler(this, "cancelPrintBtn_click");
 
   //Console Button
-  consoleBtn = new GButton(this, 1400, 700, 100, 40);
-  consoleBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  consoleBtn.setText("Console");
-  consoleBtn.addEventHandler(this, "consoleBtn_click");
-
-
+  //consoleBtn = new GButton(this, 1400, 700, 100, 40);
+  //consoleBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  //consoleBtn.setText("Console");
+  //consoleBtn.addEventHandler(this, "consoleBtn_click");
 
   //Status Label
-  statusLabel = new GLabel(this, 1160, 800, 250, 100);
+  statusLabel = new GLabel(this, 1160, 550, 250, 100);
   statusLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   statusLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   statusLabel.setText("Status:");
   statusLabel.setOpaque(false);
 
-
+  //Rendering Label
+  renderLabel = new GLabel(this, 1280, 670, 250, 30);
+  renderLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
+  renderLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  renderLabel.setText("Render Controls");
+  renderLabel.setOpaque(false);
+  
+  
   //Right Arrow
-  rightArrowbtn = new GButton(this, 1330, 720, 42, 36);
+  rightArrowbtn = new GButton(this, 1365, 780, 42, 36);
   rightArrowbtn.setIcon("ArrowRight.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   rightArrowbtn.addEventHandler(this, "rightArrowbtn_click1");
   //Up Arrow
-  upArrowbtn = new GButton(this, 1280, 690, 40, 41);
+  upArrowbtn = new GButton(this, 1325, 740, 40, 41);
   upArrowbtn.setIcon("ArrowUp.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   upArrowbtn.addEventHandler(this, "upArrowbtn_click1");
   //Left Arrow
-  leftArrowbtn = new GButton(this, 1230, 720, 44, 36);
+  leftArrowbtn = new GButton(this, 1280, 780, 44, 36);
   leftArrowbtn.setIcon("ArrowLeft.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   leftArrowbtn.addEventHandler(this, "leftArrowbtn_click1");
   //Down Arrow
-  downArrowbtn = new GButton(this, 1280, 750, 40, 40);
+  downArrowbtn = new GButton(this, 1325, 810, 40, 40);
   downArrowbtn.setIcon("ArrowDown.png", 1, GAlign.EAST, GAlign.RIGHT, GAlign.MIDDLE);
   downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
 
@@ -894,18 +821,18 @@ public void createGUI(){
   warmupcancelBtn.addEventHandler(this, "warmupcancelBtn_click");
   warmupWindow.loop();
 
-  //Log Window
-  logWindow = GWindow.getWindow(this, "Console Log", 0, 0, 300, 350, JAVA2D);
-  logWindow.noLoop();
-  logWindow.addDrawHandler(this, "logWin_draw1");
-  logTextBox = new GTextArea(logWindow, 10, 10, 290, 290, G4P.SCROLLBARS_BOTH);  //should have scrollbar
-  logTextBox.setOpaque(true);
-  //Close logWindow button
-  logCloseBtn = new GButton(logWindow, 10, 310, 80, 30);
-  logCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
-  logCloseBtn.setText("Close");
-  logCloseBtn.addEventHandler(this, "logCloseBtn_click");
-  logWindow.loop();
+  ////Log Window
+  //logWindow = GWindow.getWindow(this, "Console Log", 0, 0, 300, 350, JAVA2D);
+  //logWindow.noLoop();
+  //logWindow.addDrawHandler(this, "logWin_draw1");
+  //logTextBox = new GTextArea(logWindow, 10, 10, 290, 290, G4P.SCROLLBARS_BOTH);  //should have scrollbar
+  //logTextBox.setOpaque(true);
+  ////Close logWindow button
+  //logCloseBtn = new GButton(logWindow, 10, 310, 80, 30);
+  //logCloseBtn.setFont(new Font(Font_Type, Font.PLAIN, 16));
+  //logCloseBtn.setText("Close");
+  //logCloseBtn.addEventHandler(this, "logCloseBtn_click");
+  //logWindow.loop();
 
   //Error Window
   errorWindow = GWindow.getWindow(this, "ERROR", 0, 0, 500, 220, JAVA2D);
@@ -930,7 +857,6 @@ public void createGUI(){
                                        //Variables:
 
 //Variables for 3D printer
-int quality;           //Low, Medium, High (0, 1, 2)
 boolean printWhenReady;
 float infill;          // infill % (0 - 1)
 String filePath;
@@ -975,19 +901,10 @@ GLabel xLabel;
 GLabel yLabel;
 GLabel zLabel;
 
-//Quality
-GToggleGroup qualityGroup;
-GOption qualityLowRad;
-GOption qualityMedRad;
-GOption qualityHighRad;
-GLabel qualityLabel;
-
 //Filament Diameter
-GToggleGroup filamentGroup;
-GOption filament175;
-GOption filament3;
+GSlider filamentSlider;
 GLabel filamentLabel;
-Float filament;
+float filamentDiameter;
 
 //Nozzle
 GSlider nozzleSlider;
@@ -1004,12 +921,14 @@ GButton homingBtn;
 GButton connectBtn;
 
 //Log Window
-GButton consoleBtn;
-GWindow logWindow;
-GTextArea logTextBox;
-GButton logCloseBtn;
+//GButton consoleBtn;
+//GWindow logWindow;
+//GTextArea logTextBox;
+//GButton logCloseBtn;
 
 GLabel statusLabel;
+
+GLabel renderLabel;
 
 GButton rightArrowbtn;
 GButton upArrowbtn;
