@@ -43,11 +43,9 @@ Model test;
 
 int last;
 
-public void settings(){
-    size(1570, 950);    // must be P3D to render  950
-}
-
 public void setup(){
+  size(1570, 950);
+  //surface.setResizable(true);
   createGUI();
   frameRate(10);
   layerScale = round2(layerScaleSlider.getValueF(), 2);
@@ -669,7 +667,7 @@ public void createGUI(){
   nozzleSlider = new GSlider(this, 1350, 350, 160, 40, 10.0);
   nozzleSlider.setShowValue(true);
   nozzleSlider.setShowLimits(true);
-  nozzleSlider.setLimits(0.5, 0.0, 1.0);
+  nozzleSlider.setLimits(0.6, 0.2, 1.0);
   nozzleSlider.setNumberFormat(G4P.DECIMAL, 2);
   nozzleSlider.setOpaque(false);
   nozzleSlider.addEventHandler(this, "nozzleSlider_change");
