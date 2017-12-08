@@ -473,10 +473,10 @@ public void fileSelected(File selection) {
   fileTextBox.setText(STLFile);
 }
 
-//GCode TextBox Change
-public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcodeTextBox:726640:
-  println("textarea1 - GTextArea >> GEvent." + event + " @ " + millis());
-} //_CODE_:gcodeTextBox:726640:
+//GCode TextBox Change - will not allow user to enter GCode at the moment - must pick an STL file
+//public void gcodeTextBox_change(GTextArea source, GEvent event) { //_CODE_:gcodeTextBox:726640:
+//  println("textarea1 - GTextArea >> GEvent." + event + " @ " + millis());
+//} //_CODE_:gcodeTextBox:726640:
 
 //Cancel Input Button Click
 public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancelInputBtn:629030:
@@ -766,7 +766,7 @@ public void createGUI(){
   downArrowbtn.addEventHandler(this, "downArrowbtn_click1");
 
   //Choose File Window
-  inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 300, 350, JAVA2D);
+  inputWindow = GWindow.getWindow(this, "Choose input", 0, 0, 280, 120, JAVA2D);
   inputWindow.noLoop();
   inputWindow.addDrawHandler(this, "win_draw1");
   fileTextBox = new GTextField(inputWindow, 10, 20, 160, 30, G4P.SCROLLBARS_NONE);
@@ -776,13 +776,13 @@ public void createGUI(){
   searchFileBtn = new GButton(inputWindow, 180, 20, 80, 30);
   searchFileBtn.setText("Search");
   searchFileBtn.addEventHandler(this, "searchFileBtn_click");
-  gcodeTextBox = new GTextArea(inputWindow, 10, 80, 280, 220, G4P.SCROLLBARS_VERTICAL_ONLY);
-  gcodeTextBox.setOpaque(true);
-  gcodeTextBox.addEventHandler(this, "gcodeTextBox_change");
-  cancelInputBtn = new GButton(inputWindow, 190, 310, 80, 30);
+  //gcodeTextBox = new GTextArea(inputWindow, 10, 80, 280, 220, G4P.SCROLLBARS_VERTICAL_ONLY);
+  //gcodeTextBox.setOpaque(true);
+  //gcodeTextBox.addEventHandler(this, "gcodeTextBox_change");
+  cancelInputBtn = new GButton(inputWindow, 179, 80, 80, 30);
   cancelInputBtn.setText("Cancel");
   cancelInputBtn.addEventHandler(this, "cancelInputBtn_click");
-  confirmBtn = new GButton(inputWindow, 30, 310, 80, 30);
+  confirmBtn = new GButton(inputWindow, 10, 80, 80, 30);
   confirmBtn.setText("Confirm");
   confirmBtn.addEventHandler(this, "confirmBtn_click");
   inputWindow.loop();
@@ -940,7 +940,7 @@ GButton downArrowbtn;
 GWindow inputWindow;
 GTextField fileTextBox;
 GButton searchFileBtn;
-GTextArea gcodeTextBox;
+//GTextArea gcodeTextBox;
 GButton cancelInputBtn;
 GButton confirmBtn;
 
