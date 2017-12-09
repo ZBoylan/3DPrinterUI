@@ -27,6 +27,8 @@ int TEMP_MIN = 0;
 
 //Create Device Controller object
 DeviceController devControl = new DeviceController(this);
+//  ***   To use Device Controller in test mode   ***
+//DeviceController devControl = new DeviceController(true);
 ArrayList<String> gcode;
 
 //For render & slicing
@@ -75,16 +77,6 @@ public void setup(){
   yArea = Integer.parseInt(yTextBox.getText());
   zArea = Integer.parseInt(zTextBox.getText());
   
-
-  ////  ***   To use Device Controller in test mode   ***
-  //try {
-  //   devControl = new DeviceController(true);
-  //}
-  //catch(RuntimeException e) {
-  //   e.printStackTrace();
-  //   println("Failed to open serial port, aborting");
-  //   return;
-  //}
 }
 
 public void draw(){
@@ -93,10 +85,7 @@ public void draw(){
   line(1130, 650, 1570, 650);
   stroke(126);
   updateStatusLabel();
-  //if (confirmedClicked){
-  //   rendering = createGraphics(250, 250, P3D);   // MOVE out of draw()
 
-  //}
 }
 
  public static float round2(float number, int scale) {
@@ -568,7 +557,7 @@ public void createGUI(){
   serialDevicesLabel = new GLabel(this, 1160, 60, 200, 80);
   serialDevicesLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   serialDevicesLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  serialDevicesLabel.setText("Select Serial Device:");
+  serialDevicesLabel.setText("Select Serial Port:");
   serialDevicesLabel.setOpaque(false);
   //Serial Devices DropList
   serialDevices = new GDropList(this, 1350, 85, 150, 100, 3);
@@ -1017,6 +1006,14 @@ private void updateState()
 private void updateStatusLabel()
 {
     updateState();
+    
+    // Print When Ready check
+    if (printWhenReady && !devControl.isJobRunning() && devControl.serialConnected() && gcode != null && gcode.size() > 0)
+    {
+      println("PrintWhenReady turned on -> auto-calling startPrintJob() now");
+      devControl.startPrintJob(gcode);
+    }
+    
     String[] lblStatus = new String[3];
     switch (stateConnect)
     {
