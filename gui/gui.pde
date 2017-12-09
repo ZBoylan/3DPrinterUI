@@ -2,7 +2,7 @@
 GUI for 3D printer
 
 Authors:
-Zachary BoylstartPrintBtnan, Zaid Bhujwala, Rebecca Peralta, George Ventura
+Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
 
 Required Processing Library needed before running gui.pde:
   - G4P
