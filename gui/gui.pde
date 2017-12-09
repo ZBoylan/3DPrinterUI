@@ -21,6 +21,13 @@ import java.io.File;
 import processing.serial.*;
 import java.util.Arrays;
 
+import toxi.geom.*;
+import toxi.geom.mesh.*;
+import toxi.processing.*;
+
+TriangleMesh mesh;
+ToxiclibsSupport gfx;
+
 //default max & min temptures for printer head and bed
 int TEMP_MAX = 400;
 int TEMP_MIN = 0;
@@ -44,7 +51,7 @@ Model test;
 int last;
 
 public void setup(){
-  size(1570, 950);
+  size(1570, 950, P3D);
   //surface.setResizable(true);
   createGUI();
   frameRate(10);
@@ -97,6 +104,17 @@ public void draw(){
   //   rendering = createGraphics(250, 250, P3D);   // MOVE out of draw()
 
   //}
+
+  if (confirmedClicked){
+    lights();
+    translate(550, 450, 0);
+    rotateX(mouseY*0.01);
+    rotateY(mouseX*0.01);
+    gfx.origin(new Vec3D(),200);
+    noStroke();
+    gfx.mesh(mesh,false,10);
+  }
+
 }
 
  public static float round2(float number, int scale) {
@@ -471,6 +489,8 @@ public void fileSelected(File selection) {
     errorWindow.setVisible(true);
     STLFile = "";
   }
+  mesh=(TriangleMesh)new STLReader().loadBinary(sketchPath(STLFile),STLReader.TRIANGLEMESH);
+  gfx=new ToxiclibsSupport(this);
   fileTextBox.setText(STLFile);
 }
 
