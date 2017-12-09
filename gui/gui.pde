@@ -2,7 +2,7 @@
 GUI for 3D printer
 
 Authors:
-Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
+Zachary BoylstartPrintBtnan, Zaid Bhujwala, Rebecca Peralta, George Ventura
 
 Required Processing Library needed before running gui.pde:
   - G4P
@@ -43,7 +43,6 @@ PGraphics rendering;
 //RenderControler vis;
 boolean realsed = true;
 boolean confirmedClicked = false;
-boolean printerOpOpen = false;  //why do we need this?
 
 int i=0;
 int j=0;
@@ -65,8 +64,8 @@ public void setup(){
   warmupWindow.setVisible(false);
   //logWindow.setVisible(false);
   errorWindow.setVisible(false);
-  startSliceBtn.setVisible(false);
-  pauseSliceBtn.setVisible(false);
+  startPrintBtn.setVisible(false);
+  pausePrintBtn.setVisible(false);
   cancelPrintBtn.setVisible(false);
   homingBtn.setVisible(false);
   bedTempTextBox.setText("50");
@@ -143,8 +142,8 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
 
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
 
-      startSliceBtn.setVisible(true);
-      pauseSliceBtn.setVisible(true);
+      startPrintBtn.setVisible(true);
+      pausePrintBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
   }
@@ -161,8 +160,8 @@ public void baudRateTextBox_change(GTextField source, GEvent event) {
   
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
   
-      startSliceBtn.setVisible(true);
-      pauseSliceBtn.setVisible(true);
+      startPrintBtn.setVisible(true);
+      pausePrintBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
   }
@@ -282,8 +281,8 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
 
-      startSliceBtn.setVisible(true);
-      pauseSliceBtn.setVisible(true);
+      startPrintBtn.setVisible(true);
+      pausePrintBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
   }
@@ -318,8 +317,8 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
   if (connectBtn.getText() == "Connect to Printer"){
     devControl.connectSerial(port, baudRate);
     if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
-      startSliceBtn.setVisible(true);
-      pauseSliceBtn.setVisible(true);
+      startPrintBtn.setVisible(true);
+      pausePrintBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
     }
@@ -344,27 +343,27 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
 } //_CODE_:connectBtn:421460:
 
 //Start Button Click
-public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
+public void startPrintBtn_click(GButton source, GEvent event) { //_CODE_:startPrintBtn:735941:
   println("Start Print button pressed");
   devControl.startPrintJob(gcode);
-}//_CODE_:startSliceBtn:735941:
+}//_CODE_:startPrintBtn:735941:
 
 
 
 //Pause Button Click
-public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
+public void pausePrintBtn_click(GButton source, GEvent event) { //_CODE_:pausePrintBtn:624877:
   println("Pause / Resume button pressed");
   //logTextBox.appendText("Pause / Resume button pressed");
 
-  if (pauseSliceBtn.getText() == "Pause"){
+  if (pausePrintBtn.getText() == "Pause"){
     devControl.pauseJob();
-    pauseSliceBtn.setText("Resume");
+    pausePrintBtn.setText("Resume");
   }
   else {
     devControl.resumeJob();
-    pauseSliceBtn.setText("Pause");    // allows you to pause more than once per print job
+    pausePrintBtn.setText("Pause");    // allows you to pause more than once per print job
   }
-} //_CODE_:pauseSliceBtn:624877:
+} //_CODE_:pausePrintBtn:624877:
 
 
 //Cancel Button Click
@@ -706,16 +705,16 @@ public void createGUI(){
 
   //Start Button
 
-  startSliceBtn = new GButton(this, 1160, 500, 100, 40);
-  startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  startSliceBtn.setText("Start");
-  startSliceBtn.addEventHandler(this, "startSliceBtn_click");
+  startPrintBtn = new GButton(this, 1160, 500, 100, 40);
+  startPrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  startPrintBtn.setText("Start");
+  startPrintBtn.addEventHandler(this, "startPrintBtn_click");
 
   //Pause Button
-  pauseSliceBtn = new GButton(this, 1280, 500, 100, 40);
-  pauseSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  pauseSliceBtn.setText("Pause");
-  pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
+  pausePrintBtn = new GButton(this, 1280, 500, 100, 40);
+  pausePrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  pausePrintBtn.setText("Pause");
+  pausePrintBtn.addEventHandler(this, "pausePrintBtn_click");
 
   //Cancel Button
   cancelPrintBtn = new GButton(this, 1400, 500, 100, 40);
@@ -863,9 +862,9 @@ int zArea;
 float nozzleDiameter;  //range 0-1
 float layerScale;       //range range 0 - 0.4
 
-GButton startSliceBtn;
+GButton startPrintBtn;
 
-GButton pauseSliceBtn;
+GButton pausePrintBtn;
 
 GButton cancelPrintBtn;
 
