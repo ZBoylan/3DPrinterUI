@@ -4,8 +4,9 @@ GUI for 3D printer
 Authors:
 Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
 
-Required Processing Library needed before running gui.pde:
+Required Processing Libraries needed before running gui.pde:
   - G4P
+  - ToxicLibs
 
 To start GUI, simply press the "Play" button on Processing 3.3.6 or run gui.pde by double clicking
 it.
@@ -260,24 +261,9 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
 
-  //Set Heating Head Code
-  //heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
-  //println("Heating Head Code set to " + heatingheadCode[0]);
-
-  //Set Heating Head + Waiting Code
-  //heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
-  //println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
-
-
   //Set Bed Temp
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   println("Bed Temperature = " + bedTemp);
-  //Set Heating Bed Code
-  //heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
-  //println("Heating Bed Code set to " + heatingbedCode[0]);
-  //Set Heating Bed + Waiting Code
-  //heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
-  //println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
   
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
 
@@ -784,7 +770,7 @@ public void createGUI(){
   inputWindow.setVisible(false);
 
   //Warm Up Settings Window
-  warmupWindow = GWindow.getWindow(this, "Warm Up Settings", 100, 100, 400, 250, JAVA2D);
+  warmupWindow = GWindow.getWindow(this, "Temperature Settings", 100, 100, 400, 250, JAVA2D);
   warmupWindow.noLoop();
   warmupWindow.addDrawHandler(this, "warmupWin_draw");
   //Head Temp
@@ -793,7 +779,7 @@ public void createGUI(){
   headTempLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   headTempLabel.setText("Head Temperature:");
   headTempLabel.setOpaque(false);
-  headTempTextBox = new GTextField(warmupWindow, 180, 10, 70, 30, G4P.SCROLLBARS_NONE);
+  headTempTextBox = new GTextField(warmupWindow, 188, 10, 50, 30, G4P.SCROLLBARS_NONE);
   headTempTextBox.setOpaque(true);
   headTempTextBox.addEventHandler(this, "tempTextBox_change");
   //Bed Temp
@@ -802,7 +788,7 @@ public void createGUI(){
   bedTempLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   bedTempLabel.setText("Bed Temperature:");
   bedTempLabel.setOpaque(false);
-  bedTempTextBox = new GTextField(warmupWindow, 180, 100, 70, 30, G4P.SCROLLBARS_NONE);
+  bedTempTextBox = new GTextField(warmupWindow, 188, 100, 50, 30, G4P.SCROLLBARS_NONE);
   bedTempTextBox.setOpaque(true);
   bedTempTextBox.addEventHandler(this, "tempTextBox_change");
   //Confirm
