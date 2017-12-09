@@ -346,42 +346,7 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
 //Start Button Click
 public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
   println("Start Print button pressed");
-  //logTextBox.appendText("Start Print button pressed");
-  //logTextBox.appendText("baudRate = " + baudRate);
-  //logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
-  //logTextBox.appendText("Head Temperature = " + headTemp);
-  //logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
-  //logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
-  //logTextBox.appendText("Bed Temperature = " + bedTemp);
-  //logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
-  //logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
-  //logTextBox.appendText("infill = " + infill);
-  // Checking isJobRunning is done within startPrintJob(), so I think we never have to
-  //if (devControl.isJobRunning() == false)
-  //{
-
-    if(printerOpOpen){  // ?
-      startSliceBtn.setVisible(true);
-    }
-    else{
-
-      // Will likely crash if not already connected to printer or if not in test mode
-
-      ////Heat the bed
-      //ArrayList<String> heatBedGCode = new ArrayList<String>();
-      //heatBedGCode.add(heatingbedwaitCode[0]);
-      //devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
-
-      ////Heat the head
-      //ArrayList<String> heatHeadGCode = new ArrayList<String>();
-      //heatHeadGCode.add(heatingheadwaitCode[0]);
-      //devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
-
-      //Now send 3D object gcode
-      devControl.startPrintJob(gcode);
-    }
-
-  //}
+  devControl.startPrintJob(gcode);
 }//_CODE_:startSliceBtn:735941:
 
 
