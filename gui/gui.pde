@@ -53,10 +53,11 @@ Model test;
 int last;
 
 public void setup(){
-  size(1570, 950, P3D);
+  size(1570, 950, P3D);    //  , P3D needed for showing render
   //surface.setResizable(true);
   createGUI();
   frameRate(10);
+  println("OS being used by user = " + System.getProperty("os.name"));
   layerScale = round2(layerScaleSlider.getValueF(), 2);
   port = serialDevices.getSelectedText();
   //logTextBox.setTextEditEnabled(false);
@@ -406,6 +407,12 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
   println("Cancel Print button pressed");
   //logTextBox.appendText("Cancel Print button pressed");
   devControl.stopJob();
+  
+  try {
+      Thread.sleep(1000);                 //Need delay before sending cool down codes as stopJob() is not instant
+    } catch(InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
 
   ArrayList<String> cooldownHomingCode = new ArrayList<String>();
   cooldownHomingCode.add(cooldownHoming[0]);  // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
@@ -506,17 +513,17 @@ public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 
 //Confirm Button Click
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
-  println("Confirm Input File Button Clicked");
+  println("Confirm File Selection Button Clicked");
   //logTextBox.appendText("Confirm Input File Button Clicked");
   //logTextBox.appendText("Layer scale = " + layerScale);
   
   // For new file chosen - isolate just the file name to display it on the UI
-  splitSTLFile = STLFile.split("/");
-  //println(splitSTLFile[splitSTLFile.length-1]);
+  //println(new File(STLFile).getName());
+  fileName = new File(STLFile).getName();
   
-  
+    
   if (fileTextBox.getText() == STLFile) {
-    currentFile.setText("File selected: " + splitSTLFile[splitSTLFile.length-1]);
+    currentFile.setText("File selected: " + fileName);
     inputWindow.setVisible(false);
     confirmedClicked = true;
   }
@@ -901,7 +908,7 @@ GButton cancelPrintBtn;
 GButton chooseFileBtn;
 GLabel currentFile;
 String STLFile;
-String[] splitSTLFile;
+String fileName;
 
 //Serial Devices
 GLabel serialDevicesLabel;
@@ -1065,7 +1072,7 @@ private void updateStatusLabel()
                                     break;
         case NOT_SLICED: lblStatus[2] = "Waiting to be sliced";
                                     break;
-        case SLICED:     lblStatus[2] = "G-code generated for " + splitSTLFile[splitSTLFile.length-1];
+        case SLICED:     lblStatus[2] = "G-code generated for " + fileName;
                                     break;
         default:                    lblStatus[3] = "ERROR";
     }
