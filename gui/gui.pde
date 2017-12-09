@@ -104,7 +104,7 @@ public void draw(){
   //   rendering = createGraphics(250, 250, P3D);   // MOVE out of draw()
 
   //}
-  
+
   if (confirmedClicked){
     lights();
     translate(550, 450, 0);
@@ -114,6 +114,7 @@ public void draw(){
     noStroke();
     gfx.mesh(mesh,false,10);
   }
+
 }
 
  public static float round2(float number, int scale) {
