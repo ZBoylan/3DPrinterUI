@@ -299,7 +299,12 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
       pauseSliceBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
-  }
+    }
+    try {
+      Thread.sleep(1000);                 //Need delay for next if stmt as connectSerial() is not instant
+    } catch(InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
     if (devControl.serialConnected())
     {
       connectBtn.setText("Disconnect");
@@ -560,10 +565,7 @@ public void createGUI(){
   serialDevicesLabel.setText("Select Serial Port:");
   serialDevicesLabel.setOpaque(false);
   //Serial Devices DropList
-  serialDevices = new GDropList(this, 1350, 85, 150, 100, 3);
-  //String[] deviceList = {"   ", "1111", "2222","3333"}; //Serial.list()[0]
-  //println("Serial List: " + Serial.list()[0]);
-  //printArray(Serial.list());
+  serialDevices = new GDropList(this, 1350, 88, 210, 100, 3);
   if (Serial.list().length == 0)
   {
     String[] deviceList = {"No available ports."}; 
@@ -998,7 +1000,7 @@ private void updateState()
         statePrinter = PrinterState.PRINTING;                 // activly printing
     else if (devControl.pauseRequested())
         statePrinter = PrinterState.PAUSE;                    // printing paused
-    else if (!devControl.isJobRunning() || !devControl.pauseRequested() || devControl.serialConnected())  // maybe remove serialConnect
+    else if (!devControl.isJobRunning() || !devControl.pauseRequested() || devControl.serialConnected())  // can it just be if !devControl.isJobRunning() ?  // maybe remove serialConnect
         statePrinter = PrinterState.IDLE;                     // printer is idle
 }
 
@@ -1035,15 +1037,15 @@ private void updateStatusLabel()
     }
     switch (stateSlice)
     {
-        case NO_FILE:    lblStatus[2] = "No File";
+        case NO_FILE:    lblStatus[2] = "No STL file selected";
                                     break;
-        case NOT_SLICED: lblStatus[2] = "Waiting to be Sliced";
+        case NOT_SLICED: lblStatus[2] = "Waiting to be sliced";
                                     break;
         case SLICED:     lblStatus[2] = "G-code generated for " + splitSTLFile[splitSTLFile.length-1];
                                     break;
         default:                    lblStatus[3] = "ERROR";
     }
-    statusLabel.setText("Printer: " + lblStatus[1] + " \nSTL: " + lblStatus[2] + " \nDevice: " + lblStatus[0]);
+    statusLabel.setText("      Status\nFile: " + lblStatus[2] + " \nDevice: " + lblStatus[0] + "\nPrinter: " + lblStatus[1]);
 }
 
 
