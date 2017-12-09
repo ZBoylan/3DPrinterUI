@@ -4,8 +4,9 @@ GUI for 3D printer
 Authors:
 Zachary Boylan, Zaid Bhujwala, Rebecca Peralta, George Ventura
 
-Required Processing Library needed before running gui.pde:
+Required Processing Libraries needed before running gui.pde:
   - G4P
+  - ToxicLibs
 
 To start GUI, simply press the "Play" button on Processing 3.3.6 or run gui.pde by double clicking
 it.
@@ -34,6 +35,8 @@ int TEMP_MIN = 0;
 
 //Create Device Controller object
 DeviceController devControl = new DeviceController(this);
+//  ***   To use Device Controller in test mode   ***
+//DeviceController devControl = new DeviceController(true);
 ArrayList<String> gcode;
 
 //For render & slicing
@@ -41,7 +44,6 @@ PGraphics rendering;
 //RenderControler vis;
 boolean realsed = true;
 boolean confirmedClicked = false;
-boolean printerOpOpen = false;  //why do we need this?
 
 int i=0;
 int j=0;
@@ -51,10 +53,11 @@ Model test;
 int last;
 
 public void setup(){
-  size(1570, 950, P3D);
+  size(1570, 950, P3D);    //  , P3D needed for showing render
   //surface.setResizable(true);
   createGUI();
   frameRate(10);
+  println("OS being used by user = " + System.getProperty("os.name"));
   layerScale = round2(layerScaleSlider.getValueF(), 2);
   port = serialDevices.getSelectedText();
   //logTextBox.setTextEditEnabled(false);
@@ -62,8 +65,8 @@ public void setup(){
   warmupWindow.setVisible(false);
   //logWindow.setVisible(false);
   errorWindow.setVisible(false);
-  startSliceBtn.setVisible(false);
-  pauseSliceBtn.setVisible(false);
+  startPrintBtn.setVisible(false);
+  pausePrintBtn.setVisible(false);
   cancelPrintBtn.setVisible(false);
   homingBtn.setVisible(false);
   bedTempTextBox.setText("50");
@@ -82,16 +85,6 @@ public void setup(){
   yArea = Integer.parseInt(yTextBox.getText());
   zArea = Integer.parseInt(zTextBox.getText());
   
-
-  ////  ***   To use Device Controller in test mode   ***
-  //try {
-  //   devControl = new DeviceController(true);
-  //}
-  //catch(RuntimeException e) {
-  //   e.printStackTrace();
-  //   println("Failed to open serial port, aborting");
-  //   return;
-  //}
 }
 
 public void draw(){
@@ -100,8 +93,8 @@ public void draw(){
   line(1130, 650, 1570, 650);
   stroke(126);
   updateStatusLabel();
-  //if (confirmedClicked){
-  //   rendering = createGraphics(250, 250, P3D);   // MOVE out of draw()
+
+
 
   //}
 
@@ -114,6 +107,7 @@ public void draw(){
     noStroke();
     gfx.mesh(mesh,false,10);
   }
+
 
 }
 
@@ -149,8 +143,8 @@ public void serialDevices_click1(GDropList source, GEvent event) { //_CODE_:seri
 
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
 
-      startSliceBtn.setVisible(true);
-      pauseSliceBtn.setVisible(true);
+      startPrintBtn.setVisible(true);
+      pausePrintBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
   }
@@ -167,8 +161,8 @@ public void baudRateTextBox_change(GTextField source, GEvent event) {
   
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
   
-      startSliceBtn.setVisible(true);
-      pauseSliceBtn.setVisible(true);
+      startPrintBtn.setVisible(true);
+      pausePrintBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
   }
@@ -267,29 +261,14 @@ public void warmupconfirmBtn_click(GButton source, GEvent event) {
   headTemp = Integer.parseInt(headTempTextBox.getText());
   println("Head Temperature = " + headTemp);
 
-  //Set Heating Head Code
-  //heatingheadCode[0] = heatingheadCode[0].substring(0, heatingheadCode[0].indexOf("S") + 1) + str(headTemp);
-  //println("Heating Head Code set to " + heatingheadCode[0]);
-
-  //Set Heating Head + Waiting Code
-  //heatingheadwaitCode[0] = heatingheadwaitCode[0].substring(0, heatingheadwaitCode[0].indexOf("S") + 1) + str(headTemp);
-  //println("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
-
-
   //Set Bed Temp
   bedTemp = Integer.parseInt(bedTempTextBox.getText());
   println("Bed Temperature = " + bedTemp);
-  //Set Heating Bed Code
-  //heatingbedCode[0] = heatingbedCode[0].substring(0, heatingbedCode[0].indexOf("S") + 1) + str(bedTemp);
-  //println("Heating Bed Code set to " + heatingbedCode[0]);
-  //Set Heating Bed + Waiting Code
-  //heatingbedwaitCode[0] = heatingbedwaitCode[0].substring(0, heatingbedwaitCode[0].indexOf("S") + 1) + str(bedTemp);
-  //println("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
   
   if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
 
-      startSliceBtn.setVisible(true);
-      pauseSliceBtn.setVisible(true);
+      startPrintBtn.setVisible(true);
+      pausePrintBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
   }
@@ -324,11 +303,16 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
   if (connectBtn.getText() == "Connect to Printer"){
     devControl.connectSerial(port, baudRate);
     if((headTemp != null && bedTemp != null) && baudRate != null && port != null && !gcode.isEmpty()){
-      startSliceBtn.setVisible(true);
-      pauseSliceBtn.setVisible(true);
+      startPrintBtn.setVisible(true);
+      pausePrintBtn.setVisible(true);
       cancelPrintBtn.setVisible(true);
       homingBtn.setVisible(true);
-  }
+    }
+    try {
+      Thread.sleep(1000);                 //Need delay for next if stmt as connectSerial() is not instant
+    } catch(InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
     if (devControl.serialConnected())
     {
       connectBtn.setText("Disconnect");
@@ -345,62 +329,27 @@ public void connectBtn_click(GButton source, GEvent event) { //_CODE_:connectBtn
 } //_CODE_:connectBtn:421460:
 
 //Start Button Click
-public void startSliceBtn_click(GButton source, GEvent event) { //_CODE_:startSliceBtn:735941:
+public void startPrintBtn_click(GButton source, GEvent event) { //_CODE_:startPrintBtn:735941:
   println("Start Print button pressed");
-  //logTextBox.appendText("Start Print button pressed");
-  //logTextBox.appendText("baudRate = " + baudRate);
-  //logTextBox.appendText("Nozzle diameter = " + nozzleDiameter);
-  //logTextBox.appendText("Head Temperature = " + headTemp);
-  //logTextBox.appendText("Heating Head Code set to " + heatingheadCode[0]);
-  //logTextBox.appendText("Heating Head + Waiting Code set to " + heatingheadwaitCode[0]);
-  //logTextBox.appendText("Bed Temperature = " + bedTemp);
-  //logTextBox.appendText("Heating Bed Code set to " + heatingbedCode[0]);
-  //logTextBox.appendText("Heating Bed + Waiting Code set to " + heatingbedwaitCode[0]);
-  //logTextBox.appendText("infill = " + infill);
-  // Checking isJobRunning is done within startPrintJob(), so I think we never have to
-  //if (devControl.isJobRunning() == false)
-  //{
-
-    if(printerOpOpen){  // ?
-      startSliceBtn.setVisible(true);
-    }
-    else{
-
-      // Will likely crash if not already connected to printer or if not in test mode
-
-      ////Heat the bed
-      //ArrayList<String> heatBedGCode = new ArrayList<String>();
-      //heatBedGCode.add(heatingbedwaitCode[0]);
-      //devControl.startPrintJob(heatBedGCode);  //Need to pass ArrayList<String>
-
-      ////Heat the head
-      //ArrayList<String> heatHeadGCode = new ArrayList<String>();
-      //heatHeadGCode.add(heatingheadwaitCode[0]);
-      //devControl.startPrintJob(heatHeadGCode);  //Need to pass ArrayList<String>
-
-      //Now send 3D object gcode
-      devControl.startPrintJob(gcode);
-    }
-
-  //}
-}//_CODE_:startSliceBtn:735941:
+  devControl.startPrintJob(gcode);
+}//_CODE_:startPrintBtn:735941:
 
 
 
 //Pause Button Click
-public void pauseSliceBtn_click(GButton source, GEvent event) { //_CODE_:pauseSliceBtn:624877:
+public void pausePrintBtn_click(GButton source, GEvent event) { //_CODE_:pausePrintBtn:624877:
   println("Pause / Resume button pressed");
   //logTextBox.appendText("Pause / Resume button pressed");
 
-  if (pauseSliceBtn.getText() == "Pause"){
+  if (pausePrintBtn.getText() == "Pause"){
     devControl.pauseJob();
-    pauseSliceBtn.setText("Resume");
+    pausePrintBtn.setText("Resume");
   }
   else {
     devControl.resumeJob();
-    pauseSliceBtn.setText("Pause");    // allows you to pause more than once per print job
+    pausePrintBtn.setText("Pause");    // allows you to pause more than once per print job
   }
-} //_CODE_:pauseSliceBtn:624877:
+} //_CODE_:pausePrintBtn:624877:
 
 
 //Cancel Button Click
@@ -408,6 +357,12 @@ public void cancelPrintBtn_click(GButton source, GEvent event) { //_CODE_:cancel
   println("Cancel Print button pressed");
   //logTextBox.appendText("Cancel Print button pressed");
   devControl.stopJob();
+  
+  try {
+      Thread.sleep(1000);                 //Need delay before sending cool down codes as stopJob() is not instant
+    } catch(InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
 
   ArrayList<String> cooldownHomingCode = new ArrayList<String>();
   cooldownHomingCode.add(cooldownHoming[0]);  // When print job is complete or aborted - "after printing, we should only move the x/y axis out of the way. Moving the head down could hit the printed object"
@@ -508,17 +463,17 @@ public void cancelInputBtn_click(GButton source, GEvent event) { //_CODE_:cancel
 
 //Confirm Button Click
 public void confirmBtn_click(GButton source, GEvent event) { //_CODE_:confirmBtn:275116:
-  println("Confirm Input File Button Clicked");
+  println("Confirm File Selection Button Clicked");
   //logTextBox.appendText("Confirm Input File Button Clicked");
   //logTextBox.appendText("Layer scale = " + layerScale);
   
   // For new file chosen - isolate just the file name to display it on the UI
-  splitSTLFile = STLFile.split("/");
-  //println(splitSTLFile[splitSTLFile.length-1]);
+  //println(new File(STLFile).getName());
+  fileName = new File(STLFile).getName();
   
-  
+    
   if (fileTextBox.getText() == STLFile) {
-    currentFile.setText("File selected: " + splitSTLFile[splitSTLFile.length-1]);
+    currentFile.setText("File selected: " + fileName);
     inputWindow.setVisible(false);
     confirmedClicked = true;
   }
@@ -588,13 +543,10 @@ public void createGUI(){
   serialDevicesLabel = new GLabel(this, 1160, 60, 200, 80);
   serialDevicesLabel.setTextAlign(GAlign.LEFT, GAlign.MIDDLE);
   serialDevicesLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  serialDevicesLabel.setText("Select Serial Device:");
+  serialDevicesLabel.setText("Select Serial Port:");
   serialDevicesLabel.setOpaque(false);
   //Serial Devices DropList
-  serialDevices = new GDropList(this, 1350, 85, 150, 100, 3);
-  //String[] deviceList = {"   ", "1111", "2222","3333"}; //Serial.list()[0]
-  //println("Serial List: " + Serial.list()[0]);
-  //printArray(Serial.list());
+  serialDevices = new GDropList(this, 1350, 88, 210, 100, 3);
   if (Serial.list().length == 0)
   {
     String[] deviceList = {"No available ports."}; 
@@ -739,16 +691,16 @@ public void createGUI(){
 
   //Start Button
 
-  startSliceBtn = new GButton(this, 1160, 500, 100, 40);
-  startSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  startSliceBtn.setText("Start");
-  startSliceBtn.addEventHandler(this, "startSliceBtn_click");
+  startPrintBtn = new GButton(this, 1160, 500, 100, 40);
+  startPrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  startPrintBtn.setText("Start");
+  startPrintBtn.addEventHandler(this, "startPrintBtn_click");
 
   //Pause Button
-  pauseSliceBtn = new GButton(this, 1280, 500, 100, 40);
-  pauseSliceBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
-  pauseSliceBtn.setText("Pause");
-  pauseSliceBtn.addEventHandler(this, "pauseSliceBtn_click");
+  pausePrintBtn = new GButton(this, 1280, 500, 100, 40);
+  pausePrintBtn.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
+  pausePrintBtn.setText("Pause");
+  pausePrintBtn.addEventHandler(this, "pausePrintBtn_click");
 
   //Cancel Button
   cancelPrintBtn = new GButton(this, 1400, 500, 100, 40);
@@ -818,7 +770,7 @@ public void createGUI(){
   inputWindow.setVisible(false);
 
   //Warm Up Settings Window
-  warmupWindow = GWindow.getWindow(this, "Warm Up Settings", 100, 100, 400, 250, JAVA2D);
+  warmupWindow = GWindow.getWindow(this, "Temperature Settings", 100, 100, 400, 250, JAVA2D);
   warmupWindow.noLoop();
   warmupWindow.addDrawHandler(this, "warmupWin_draw");
   //Head Temp
@@ -827,7 +779,7 @@ public void createGUI(){
   headTempLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   headTempLabel.setText("Head Temperature:");
   headTempLabel.setOpaque(false);
-  headTempTextBox = new GTextField(warmupWindow, 180, 10, 70, 30, G4P.SCROLLBARS_NONE);
+  headTempTextBox = new GTextField(warmupWindow, 188, 10, 50, 30, G4P.SCROLLBARS_NONE);
   headTempTextBox.setOpaque(true);
   headTempTextBox.addEventHandler(this, "tempTextBox_change");
   //Bed Temp
@@ -836,7 +788,7 @@ public void createGUI(){
   bedTempLabel.setFont(new Font(Font_Type, Font.PLAIN, Font_Size));
   bedTempLabel.setText("Bed Temperature:");
   bedTempLabel.setOpaque(false);
-  bedTempTextBox = new GTextField(warmupWindow, 180, 100, 70, 30, G4P.SCROLLBARS_NONE);
+  bedTempTextBox = new GTextField(warmupWindow, 188, 100, 50, 30, G4P.SCROLLBARS_NONE);
   bedTempTextBox.setOpaque(true);
   bedTempTextBox.addEventHandler(this, "tempTextBox_change");
   //Confirm
@@ -896,9 +848,9 @@ int zArea;
 float nozzleDiameter;  //range 0-1
 float layerScale;       //range range 0 - 0.4
 
-GButton startSliceBtn;
+GButton startPrintBtn;
 
-GButton pauseSliceBtn;
+GButton pausePrintBtn;
 
 GButton cancelPrintBtn;
 
@@ -906,7 +858,7 @@ GButton cancelPrintBtn;
 GButton chooseFileBtn;
 GLabel currentFile;
 String STLFile;
-String[] splitSTLFile;
+String fileName;
 
 //Serial Devices
 GLabel serialDevicesLabel;
@@ -1029,7 +981,7 @@ private void updateState()
         statePrinter = PrinterState.PRINTING;                 // activly printing
     else if (devControl.pauseRequested())
         statePrinter = PrinterState.PAUSE;                    // printing paused
-    else if (!devControl.isJobRunning() || !devControl.pauseRequested() || devControl.serialConnected())  // maybe remove serialConnect
+    else if (!devControl.isJobRunning() || !devControl.pauseRequested() || devControl.serialConnected())  // can it just be if !devControl.isJobRunning() ?  // maybe remove serialConnect
         statePrinter = PrinterState.IDLE;                     // printer is idle
 }
 
@@ -1037,6 +989,14 @@ private void updateState()
 private void updateStatusLabel()
 {
     updateState();
+    
+    // Print When Ready check
+    if (printWhenReady && !devControl.isJobRunning() && devControl.serialConnected() && gcode != null && gcode.size() > 0)
+    {
+      println("PrintWhenReady turned on -> auto-calling startPrintJob() now");
+      devControl.startPrintJob(gcode);
+    }
+    
     String[] lblStatus = new String[3];
     switch (stateConnect)
     {
@@ -1058,15 +1018,15 @@ private void updateStatusLabel()
     }
     switch (stateSlice)
     {
-        case NO_FILE:    lblStatus[2] = "No File";
+        case NO_FILE:    lblStatus[2] = "No STL file selected";
                                     break;
-        case NOT_SLICED: lblStatus[2] = "Waiting to be Sliced";
+        case NOT_SLICED: lblStatus[2] = "Waiting to be sliced";
                                     break;
-        case SLICED:     lblStatus[2] = "G-code generated for " + splitSTLFile[splitSTLFile.length-1];
+        case SLICED:     lblStatus[2] = "G-code generated for " + fileName;
                                     break;
         default:                    lblStatus[3] = "ERROR";
     }
-    statusLabel.setText("Printer: " + lblStatus[1] + " \nSTL: " + lblStatus[2] + " \nDevice: " + lblStatus[0]);
+    statusLabel.setText("      Status\nFile: " + lblStatus[2] + " \nDevice: " + lblStatus[0] + "\nPrinter: " + lblStatus[1]);
 }
 
 
